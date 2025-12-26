@@ -1,0 +1,17 @@
+# Git metadata (can be huge and unnecessary)
+.git
+.gitignore
+
+# R local environment files
+# You only need the 'renv.lock', not the actual installed library!
+renv/library/
+renv/python/
+renv/staging/
+.Rhistory
+.RData
+.Rproj.user
+
+# Documentation and local notes
+README.md
+*.Rproj
+local_tests/

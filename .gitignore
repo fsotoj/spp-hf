@@ -1,0 +1,22 @@
+# Ignore all Excel files
+*.xlsx
+*.xls
+
+*.webp
+
+# Ignore PDF
+*.pdf
+
+# Ignore the GeoJSON map
+*.geojson
+
+# Ignore the local download cache directory
+data_cache/
+public_assets/
+
+# Ignore system files
+.DS_Store
+.Rhistory
+.RData
+.Rproj.user
+.Ruserdata
