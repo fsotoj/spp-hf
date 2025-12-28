@@ -170,21 +170,21 @@ ui <- dashboardPage(
     
     # --- FOOTER
     
-    tags$footer(
-      style = "
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      padding: 5px 15px;
-      font-size: 11px;
-      text-align: left;
-      width: max-content;
-      background: linear-gradient(to right, var(--orange), rgba(18, 18, 18, 0));
-      color: var(--gray);
-      z-index: 1050;
-    ",
-      HTML("Tool developed by <strong><a href='https://www.linkedin.com/in/felipesotojorquera/' target='_blank' style='color:var(--magenta, #E5007D)'>Felipe Soto Jorquera.</a></strong>")
-    ),
+    # tags$footer(
+    #   style = "
+    #   position: fixed;
+    #   bottom: 0;
+    #   left: 0;
+    #   padding: 5px 15px;
+    #   font-size: 11px;
+    #   text-align: left;
+    #   width: max-content;
+    #   background: linear-gradient(to right, var(--orange), rgba(18, 18, 18, 0));
+    #   color: var(--gray);
+    #   z-index: 1050;
+    # ",
+    #   HTML("Tool developed by <strong><a href='https://www.linkedin.com/in/felipesotojorquera/' target='_blank' style='color:var(--magenta, #E5007D)'>Felipe Soto Jorquera.</a></strong>")
+    # ),
     
     tags$head(
       
