@@ -1169,3 +1169,35 @@ background-color: var(--purple) !important; color: #fff !important;
 
 }
 
+
+/* Color theme for the range slider */
+
+.irs-bar, 
+.irs-bar--single {
+    /* Horizontal gradient using your variable */
+    background: linear-gradient(
+        to right, 
+        #d1a3ff 0%,     /* Very light purple at the start */
+        #8b1eff 33%,    /* Stays relatively light until the 1/3 mark */
+        var(--purple) 100% /* Blends into your main purple for the rest */
+    ) !important;
+    
+    /* Ensure the borders match the theme */
+    border-top: 1px solid var(--purple) !important;
+    border-bottom: 1px solid var(--purple) !important;
+    height: 8px; /* Slightly taller bar makes gradients more visible */
+}
+
+/* Update the slider handle to match */
+.irs-handle {
+    border: 2px solid var(--purple) !important;
+    background-color: white !important;
+    box-shadow: 0 0 5px rgba(128, 0, 128, 0.2); /* Subtle purple glow */
+}
+
+/* Optional: Change the color of the "from" and "to" labels */
+.irs-min, .irs-max, .irs-single {
+    color: #fff !important;
+    background-color: var(--purple) !important;
+}
+

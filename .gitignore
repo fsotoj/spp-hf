@@ -13,6 +13,7 @@
 # Ignore the local download cache directory
 data_cache/
 public_assets/
+.devcontainer/
 
 # Ignore system files
 .DS_Store

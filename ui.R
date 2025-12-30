@@ -1,12 +1,12 @@
 
 
-ui <- dashboardPage(  
+ui <- dashboardPage(
   dashboardHeader(
     title = tags$div(
       class = "app-header-logo",
       tags$img(src = "spp_logo_v5.svg", height = "50px"),
       tags$div(
-        class = "tec-logo-title",  
+        class = "tec-logo-title",
         tags$img(
           src = "docs/EscuelaCienciasSocialesyGobierno_Horizontal_Negro.webp",
           height = "36px",
@@ -14,11 +14,8 @@ ui <- dashboardPage(
         )
       )
     ),
-    
     titleWidth = 250,
-    
 
-    
     # How to button
     tags$li(
       class = "dropdown",
@@ -73,30 +70,6 @@ ui <- dashboardPage(
                   menuItem("Databases", tabName = "data_tab", icon = icon("table"))
 
       ),
-      # tags$head(
-      #   tags$style(HTML("
-      #   .main-sidebar {
-      #     background-image: url('background_gray.svg');
-      #     background-size: cover;
-      #     background-repeat: no-repeat;
-      #     background-position: center;
-      #   }
-      # "))
-      # ),
-      # 
-      # 
-      # div(
-      #   style = "display:none;",
-      #   sidebarMenu(id = "tabs",
-      #               menuItem("About", tabName = "about"),
-      #               menuItem("Mapping tool", tabName = "map_tab",selected = TRUE),
-      #               menuItem("Graphing tool", tabName = "graph_tab"),
-      #               menuItem("Camera Viz tool", tabName = "camera"),
-      #               menuItem("Codebook", tabName = "codebook"),
-      #               menuItem("Databases", tabName = "data_tab")
-      #   )
-      # ),
-      
       hidden(uiOutput("db_selector")),
       hidden(uiOutput("country_selector")),  # default: visible
       shinyjs::hidden(
@@ -139,7 +112,6 @@ ui <- dashboardPage(
       )
   ),
   dashboardBody(
-    #
     
     tags$head(includeHTML("ga.html"),
               tags$script(src="tab_analytics.js"),
@@ -167,25 +139,7 @@ ui <- dashboardPage(
       
       
     ),
-    
-    # --- FOOTER
-    
-    # tags$footer(
-    #   style = "
-    #   position: fixed;
-    #   bottom: 0;
-    #   left: 0;
-    #   padding: 5px 15px;
-    #   font-size: 11px;
-    #   text-align: left;
-    #   width: max-content;
-    #   background: linear-gradient(to right, var(--orange), rgba(18, 18, 18, 0));
-    #   color: var(--gray);
-    #   z-index: 1050;
-    # ",
-    #   HTML("Tool developed by <strong><a href='https://www.linkedin.com/in/felipesotojorquera/' target='_blank' style='color:var(--magenta, #E5007D)'>Felipe Soto Jorquera.</a></strong>")
-    # ),
-    
+     
     tags$head(
       
       ## move the toggle
@@ -344,7 +298,7 @@ ui <- dashboardPage(
                   column(9,
                          camaraUI("cam"),
                          div(
-                           style = "left: 40%; right: 40%; z-index: 1000; overflow-y: hidden; overflow-x: hidden;",
+                           style = "padding: 5% 5% 0 10%; z-index: 1000; overflow-y: hidden; overflow-x: hidden;",
                            shinyWidgets::sliderTextInput(
                              inputId  = "year_sel_camera", label = "Year",
                              choices  = as.character(seq(1983, 2024, 1)),
