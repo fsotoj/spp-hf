@@ -109,7 +109,7 @@ expand_and_assign <- function(df_agg,
   
   expanded %>%
     left_join(lay %>% select(pos, x, y), by = c("seat_index" = "pos")) %>%
-    select(party, x, y)
+    select(party, x, y, seat_index)
 }
 
 #-------------------------------
@@ -467,25 +467,33 @@ camaraServer <- function(id,
         dplyr::group_split(party) %>%
         purrr::map(function(df_party) {
           name <- as.character(df_party$party[1])
-          votes <- df_party$total_votes[1]
-          
           list(
             name = name,
             type = "scatter",
             data = lapply(seq_len(nrow(df_party)), function(i) {
               list(
+                id = as.character(df_party$seat_index[i]), # Unique ID for the dot
                 x = df_party$x[i],
                 y = df_party$y[i],
                 name = name,
-                votes = df_party$total_votes[i],   # same for all party points
-                seats = df_party$seats[i]          # same for all party points
+                votes = df_party$total_votes[i],
+                seats = df_party$seats[i]
               )
             }),
             marker = list(
               radius = pt_size,
               symbol = "circle",
-              lineWidth = 0,
-              fillColor = pal[[name]] %||% "#888888"
+              fillColor = pal[[name]] %||% "#888888",
+              # Add these for the 'coarse' tactile look:
+              lineWidth = 1.5,
+              lineColor = "rgba(0,0,0,0.15)", # A soft dark border for definition
+              states = list(
+                hover = list(
+                  lineWidth = 2,
+                  lineColor = "white", # Highlight border on hover
+                  brightness = 0.1
+                )
+              )
             )
           )
         })
@@ -609,20 +617,31 @@ camaraServer <- function(id,
                                            session$ns("chart")
       ))
       
-      highcharter::highchart() %>%
-        
-        highcharter::hc_chart(
-          type = "scatter",
-          zoomType = NULL,
-          animation = FALSE,
-          marginBottom = 40,
-          options = list(
-            lang = list(
-              thousandsSep = ","
+        highcharter::highchart() %>%
+          highcharter::hc_chart(
+            spacingBottom = 50,
+            type = "scatter",
+            events = list(
+              load = js_events, # Your existing legend code
+              # This triggers every time the year or selection changes
+              render = highcharter::JS("
+                function() {
+                  var chart = this;
+                  chart.series.forEach(function(s) {
+                    s.points.forEach(function(p) {
+                      if (p.graphic) {
+                        var el = p.graphic.element;
+                        // Restart the animation by removing and re-adding the class
+                        el.classList.remove('flipped-dot');
+                        void el.offsetWidth; // Force browser reflow
+                        el.classList.add('flipped-dot');
+                      }
+                    });
+                  });
+                }
+              ")
             )
-          ),
-          events = list(load = js_events)
-        ) %>%
+          ) %>%
         highcharter::hc_xAxis(
           visible = FALSE,
           min = -1.1,

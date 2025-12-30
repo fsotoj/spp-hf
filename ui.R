@@ -298,7 +298,7 @@ ui <- dashboardPage(
                   column(9,
                          camaraUI("cam"),
                          div(
-                           style = "padding: 5% 5% 0 10%; z-index: 1000; overflow-y: hidden; overflow-x: hidden;",
+                            style = "margin-top: 20px; padding: 0 5% 0 10%; overflow: hidden;",
                            shinyWidgets::sliderTextInput(
                              inputId  = "year_sel_camera", label = "Year",
                              choices  = as.character(seq(1983, 2024, 1)),
