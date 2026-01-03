@@ -20,6 +20,11 @@ RUN apt-get update && apt-get install -y \
 # 3. Setup Project Directory
 WORKDIR /home/shinyapp
 
+# --- NEW: Fix 1: Environment Variables ---
+# We disable the cache and tell renv exactly where to put the library
+ENV RENV_CONFIG_CACHE_ENABLED=FALSE
+ENV RENV_PATHS_LIBRARY=/home/shinyapp/renv/library
+
 # 4. Restore R Packages (The "Slow" Step)
 # We copy only the renv files first. This layer only rebuilds 
 # if your renv.lock file changes.
@@ -28,8 +33,9 @@ COPY .Rprofile .Rprofile
 COPY renv/activate.R renv/activate.R
 COPY renv/settings.json renv/settings.json
 
-# Use Posit Package Manager for fast binary installs
-RUN R -e "options(repos = c(CRAN = 'https://packagemanager.posit.co/cran/__linux__/bookworm/latest')); renv::restore()"
+# --- NEW: Fix 2: Clean Restore ---
+# We use 'clean = TRUE' to remove any broken links and start fresh.
+RUN R -e "options(repos = c(CRAN = 'https://packagemanager.posit.co/cran/__linux__/bookworm/latest')); renv::restore(clean = TRUE)"
 
 # 5. Data Update (The "Cache Breaker")
 # To force a fresh data download, change the date below.
@@ -41,6 +47,12 @@ RUN Rscript /home/shinyapp/fx/update_data.R
 # We copy everything else now. Any change to app.R, ui.R, or modules 
 # will trigger a rebuild FROM THIS POINT ONLY.
 COPY . /home/shinyapp/
+
+# --- NEW: Fix 3: Recursive Permission Check ---
+# Very important: ensure the 'shiny' user owns the library we just built
+USER root
+RUN chown -R shiny:shiny /home/shinyapp
+USER shiny
 
 # 7. Permissions Fix for Hugging Face
 # HF Spaces run as a non-root user (UID 1000). 
