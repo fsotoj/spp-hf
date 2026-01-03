@@ -244,7 +244,7 @@ server <- function(input, output, session) {
       label    = "State",
       choices  = choices_vals,                 # shows Title Case, returns originals
       selected = if (length(choices_vals))
-        choices_vals[[min(4, length(choices_vals))]]
+        choices_vals[[min(18, length(choices_vals))]]
       else NULL
     )
   })

@@ -311,9 +311,9 @@ ui <- dashboardPage(
                              inputId  = "year_sel_camera", label = "Year",
                              choices  = as.character(seq(1983, 2024, 1)),
                              grid     = TRUE, width = "90%",
-                             selected = 2019,
+                             selected = 2010,
                              animate  = shiny::animationOptions(
-                               interval = 1000,
+                               interval = 2000,
                                loop = FALSE
                              )
                            )
