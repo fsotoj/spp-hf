@@ -4,7 +4,15 @@ ui <- dashboardPage(
   dashboardHeader(
     title = tags$div(
       class = "app-header-logo",
-      tags$img(src = "spp_logo_v5.svg", height = "50px"),
+      
+      tags$a(
+        href = "https://subnationalpolitics.com/",
+        target = "_self",
+        tags$img(src = "spp_logo_v5.svg", height = "50px")
+      ),
+      
+      
+      
       tags$div(
         class = "tec-logo-title",
         tags$img(
