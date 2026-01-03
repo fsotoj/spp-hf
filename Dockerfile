@@ -51,7 +51,6 @@ RUN Rscript /home/shinyapp/fx/update_data.R
 COPY fx/ /home/shinyapp/fx/
 COPY modules/ /home/shinyapp/modules/
 COPY app.R server.R ui.R global.R /home/shinyapp/
-COPY app.R server.R ui.R global.R /home/shinyapp/
 
 # 6c. Copy everything else (README, etc.)
 COPY . /home/shinyapp/
