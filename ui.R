@@ -6,8 +6,8 @@ ui <- dashboardPage(
       class = "app-header-logo",
       
       tags$a(
-        href = "https://subnationalpolitics.com/",
-        target = "_top",
+        href = "#", # We use # because the action happens via JavaScript
+        onclick = "parent.postMessage('trigger_toggleHero', '*'); return false;",
         tags$img(src = "spp_logo_v5.svg", height = "50px")
       ),
       
