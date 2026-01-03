@@ -7,7 +7,7 @@ ui <- dashboardPage(
       
       tags$a(
         href = "https://subnationalpolitics.com/",
-        target = "_self",
+        target = "_top",
         tags$img(src = "spp_logo_v5.svg", height = "50px")
       ),
       
