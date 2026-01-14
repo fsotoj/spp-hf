@@ -1,12 +1,24 @@
 /******************************************************
- * SAFE GTAG WRAPPER
+ * RE-DEFINED SAFE GTAG (IFRAME BRIDGE VERSION)
  ******************************************************/
 function safeGtag() {
-  if (typeof gtag === "function") {
-    gtag.apply(null, arguments);
-  } else {
-    console.warn("gtag not ready, event skipped:", arguments);
-  }
+    const args = Array.from(arguments);
+    
+    // Check if we are inside an iframe
+    if (window.self !== window.top) {
+        // Send arguments to the parent window
+        window.parent.postMessage({
+            type: 'SHINY_GA_EVENT',
+            payload: args
+        }, '*'); 
+    } else {
+        // Fallback: If you open the HF link directly, try local gtag
+        if (typeof gtag === "function") {
+            gtag.apply(null, args);
+        } else {
+            console.log("Not in iframe & no local gtag. Event:", args);
+        }
+    }
 }
 
 /******************************************************
@@ -134,8 +146,10 @@ window.addEventListener("beforeunload", function () {
     ]
   };
 
-  navigator.sendBeacon(
-    window.location.pathname + "ga",
-    JSON.stringify(payload)
-  );
+  // Inside your beforeunload listener
+  safeGtag("event", "tab_duration", {
+      tab_name: tabLabel,
+      seconds: seconds,
+      is_closing: true // Optional flag to know they left the site
+  });
 });
