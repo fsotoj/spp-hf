@@ -973,7 +973,10 @@ observeEvent(input$btn_howto, {
     input_variable = selected_vars_vector_graph,
     input_states = selected_states_vector,
     Ymin = reactive(if (isTRUE(input$force_y0)) 0 else NULL),
-    active_tab = current_tab
+    active_tab = current_tab,
+    input_color_by = reactive({ 
+    if(input$color_by_state) "state" else "country" 
+  })
   )
   
 

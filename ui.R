@@ -290,9 +290,34 @@ ui <- dashboardPage(
                    width = NULL,
                    height = NULL,
                    linePlotLegendUI("lp")),
-                 box(width = NULL,
-                     height = NULL,
-                     checkboxInput("force_y0", "Y-axis starts at 0", value = FALSE, ))
+                box(
+                  width = NULL,
+                  height = NULL,
+                  
+                  # Axis Configuration
+                  shinyWidgets::prettyCheckbox(
+                    inputId = "force_y0",
+                    label = "Y-axis starts at 0",
+                    value = FALSE,
+                    status = "warning",
+                    shape = "square",
+                    icon = icon("check"),
+                    outline = TRUE,
+                    animation = "pulse"
+                  ),
+                  
+                  # Coloring Toggle (Replaces the Radio Buttons)
+                  shinyWidgets::prettyCheckbox(
+                    inputId = "color_by_state",
+                    label = "Color lines by state",
+                    value = FALSE, # Default is FALSE (Country)
+                    status = "warning",
+                    shape = "square",
+                    icon = icon("check"),
+                    outline = TRUE,
+                    animation = "pulse"
+                  )
+                )
           ),
           
         )

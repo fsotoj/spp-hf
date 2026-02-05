@@ -1227,3 +1227,27 @@ background-color: var(--purple) !important; color: #fff !important;
     transform: scaleX(1); 
   }
 }
+
+/* Standardizing the look of all pretty checkboxes in the sidebar */
+.pretty {
+  margin-bottom: 12px;
+  display: block;
+}
+
+.pretty label {
+  font-weight: 500 !important;
+  color: #4D4D4D !important;
+  font-size: 14px !important;
+  margin-left: 8px; /* Balanced spacing from the box */
+}
+
+/* Ensure the checkmark icon and box align with the container edge */
+.pretty.p-icon {
+  margin-left: 0px;
+}
+
+/* Optional: Slight hover effect for better interactivity */
+.pretty:hover label {
+  color: #FFA92A !important; /* Orange hover to match branding */
+  transition: color 0.2s ease;
+}
