@@ -39,11 +39,15 @@ server <- function(input, output, session) {
   #print(session$getTestEndpointUrl("ga_proxy"))
   
   
-  
+  # ==== 0) BLOCKER FOR MAP- CAMERA SYNCRO =======================================
+
+  is_navigating <- reactiveVal(FALSE)
   
   # ==== 0) CONSTANTS / INITIALIZATION =======================================
   current_tab <- reactiveVal("map_tab")
   
+  map_saved_year <- reactiveVal("2005")
+
   observeEvent(input$tabs, {
     current_tab(input$tabs)
   })
@@ -111,6 +115,12 @@ server <- function(input, output, session) {
   # 
   
   # ==== 1) GLOBAL REACTIVES ==================================================
+
+  observeEvent(input$year_sel, {
+    req(input$year_sel) # Ensure it's not NULL
+    map_saved_year(as.character(input$year_sel))
+  })
+
   # -- 1.0) states JSTree graph ----------------------
 
   selected_states_vector <- reactive({
@@ -295,48 +305,94 @@ server <- function(input, output, session) {
     sort(unique(df$year))
     
   })
+
+  target_camera_year <- reactiveVal(NULL)
+
+output$year_selector_camera_ui <- renderUI({
+  req(current_tab() == "camera")
   
+  # 1. Get available years (This SHOULD stay reactive, so it updates on Country change)
+  yrs <- sled_years_scoped_camera()
+  req(length(yrs) > 0)
   
-  # Keep year slider in sync (camera)
-  observeEvent(
-    list(current_tab(), input$country_sel_camera, input$state_sel_camera, input$chamber_sel_camera),
-    {
-      req(current_tab() == "camera")
-      if (is.null(input$year_sel_camera)) return()
-      #shiny::invalidateLater(1, session)  # ← lets UI finish rebuilding first
-      
-      yrs <- sled_years_scoped_camera()
-      
-      # no available years → reset slider cleanly
-      if (length(yrs) == 0 || all(is.na(yrs))) {
-        shinyWidgets::updateSliderTextInput(
-          session, "year_sel_camera",
-          choices  = character(0),
-          selected = NULL
-        )
-        return()
-      }
-      
-      # ensure years are character for the slider
-      yrs_chr <- as.character(sort(yrs))
-      
-      # preserve current selection *if still valid*
-      current <- input$year_sel_camera
-      if (!is.null(current) && current %in% yrs_chr) {
-        selected_year <- current
-      } else {
-        # fallback to LAST valid year (as you were doing)
-        selected_year <- tail(yrs_chr, 1)
-      }
-      
-      shinyWidgets::updateSliderTextInput(
-        session, "year_sel_camera",
-        choices  = yrs_chr,
-        selected = selected_year
-      )
-    },
-    ignoreInit = TRUE
+  yrs_num <- sort(as.integer(yrs))
+  yrs_chr <- as.character(yrs_num)
+  
+  # 2. Determine selection
+  # We use isolate() here so the slider doesn't kill itself when it moves
+  current_val <- isolate(input$year_sel_camera)
+  
+  # --- LOGIC TO PICK THE SELECTED YEAR ---
+  # A. Is there a Map Navigation Flag pending?
+  if (isTRUE(is_navigating()) && !is.null(input$switch_to_camera$year)) {
+     target <- as.character(input$switch_to_camera$year)
+     # Validate target exists
+     if (target %in% yrs_chr) {
+       sel <- target
+     } else {
+        # Nearest Lower Logic for Flag
+        t_int <- as.integer(target)
+        lower <- yrs_num[yrs_num <= t_int]
+        sel <- if(length(lower)>0) as.character(max(lower)) else tail(yrs_chr, 1)
+     }
+     
+  } else {
+    # B. Standard Behavior (User is just clicking around)
+    if (!is.null(current_val) && current_val %in% yrs_chr) {
+      sel <- current_val
+    } else {
+      sel <- tail(yrs_chr, 1) # Default to last year
+    }
+  }
+
+  # 3. Build the Slider
+  shinyWidgets::sliderTextInput(
+    inputId  = "year_sel_camera", 
+    label    = "Year",
+    choices  = yrs_chr,
+    selected = sel,
+    grid     = TRUE, 
+    width    = "100%",
+    # Ensure animation options are set
+    animate  = shiny::animationOptions(interval = 1500, loop = FALSE) 
   )
+})
+
+  
+  
+# Keep year slider in sync (camera)
+observeEvent(
+  list(current_tab(), input$country_sel_camera, input$state_sel_camera, input$chamber_sel_camera),
+  {
+    req(current_tab() == "camera")
+    # Strictly ignore if navigating or if the slider is temporarily empty
+    if (is_navigating() || is.null(input$year_sel_camera)) return()
+
+    yrs <- sled_years_scoped_camera()
+    if (length(yrs) == 0) return()
+    
+    yrs_num <- sort(as.integer(yrs))
+    yrs_chr <- as.character(yrs_num)
+    current_val <- input$year_sel_camera
+    
+    # Calculate target (Nearest Lower)
+    target_int <- as.integer(current_val)
+    if (current_val %in% yrs_chr) {
+      selected_year <- current_val
+    } else if (!is.na(target_int)) {
+      lower_years <- yrs_num[yrs_num <= target_int]
+      selected_year <- if (length(lower_years) > 0) as.character(max(lower_years)) else yrs_chr[1]
+    } else {
+      selected_year <- tail(yrs_chr, 1)
+    }
+    
+    # Only update if there is a genuine change to prevent cycles
+    if (!identical(as.character(selected_year), as.character(current_val))) {
+       shinyWidgets::updateSliderTextInput(session, "year_sel_camera", choices = yrs_chr, selected = selected_year)
+    }
+  },
+  ignoreInit = TRUE
+)
   
   
   # output$chamber_selector_camera <- renderUI({
@@ -608,17 +664,17 @@ observeEvent(input$btn_howto, {
   
 
   
-  output$year_selector <- renderUI({
+output$year_selector <- renderUI({
     req(current_tab() == "map_tab", input$country_sel, selected_vars_vector())
     
     # Static dataset
     df <- data
     
-    # Core column names (adjust if needed)
+    # Core column names
     country_col <- "country_name"
     year_col    <- "year"
     
-    # Selected variable (single column name as string)
+    # Selected variable
     var_name <- selected_vars_vector()
     if (length(var_name) > 1) var_name <- var_name[[1]]
     req(is.character(var_name), var_name %in% names(df))
@@ -628,7 +684,7 @@ observeEvent(input$btn_howto, {
       dplyr::filter(.data[[country_col]] == input$country_sel) |>
       dplyr::select(dplyr::all_of(c(country_col, year_col, var_name)))
     
-    # Determine the first non-NA year for the selected variable
+    # Determine the first non-NA year
     y_min <- if (nrow(df_filtered) == 0) {
       1983L
     } else {
@@ -636,34 +692,39 @@ observeEvent(input$btn_howto, {
         dplyr::filter(!is.na(.data[[var_name]])) |>
         dplyr::pull(.data[[year_col]])
       
-      if (length(valid_years) > 0) {
-        min(valid_years, na.rm = TRUE)
-      } else {
-        min(df_filtered[[year_col]], na.rm = TRUE)
-      }
+      if (length(valid_years) > 0) min(valid_years, na.rm = TRUE) else min(df_filtered[[year_col]], na.rm = TRUE)
     }
     
-    # Determine the latest available year (country-specific)
-    y_max <- if (nrow(df_filtered) > 0) {
-      max(df_filtered[[year_col]], na.rm = TRUE)
-    } else {
-      max(df[[year_col]], na.rm = TRUE)
-    }
+    # Determine the latest available year
+    y_max <- if (nrow(df_filtered) > 0) max(df_filtered[[year_col]], na.rm = TRUE) else max(df[[year_col]], na.rm = TRUE)
     
     # Safety fallback
     if (!is.finite(y_min) || !is.finite(y_max) || y_min > y_max) {
-      y_min <- 1983L
-      y_max <- 2024L
+      y_min <- 1983L; y_max <- 2024L
+    }
+    
+    # --- NEW SELECTION LOGIC ---
+    choices_vec <- as.character(seq(y_min, y_max, by = 1))
+    
+    # 1. Retrieve value from memory
+    target <- map_saved_year()
+    
+    # 2. Check if the saved year exists in the new Country's range
+    final_selected <- if (!is.null(target) && target %in% choices_vec) {
+      target
+    } else {
+      # Fallback: Try 2005, otherwise use the latest available year
+      if ("2005" %in% choices_vec) "2005" else as.character(y_max)
     }
     
     shinyWidgets::sliderTextInput(
       inputId  = "year_sel",
       label    = "Year",
-      choices  = as.character(seq(y_min, y_max, by = 1)),
+      choices  = choices_vec,
       grid     = TRUE,
       width    = "90%",
       animate  = TRUE,
-      selected = 2005
+      selected = final_selected # Use the calculated year
     )
   })
   
@@ -946,6 +1007,7 @@ observeEvent(input$btn_howto, {
     id = "cam",
     data = SLED, # if you later refactor the module, change to data_r = sled_cam_filtered
     state_r   = reactive(input$state_sel_camera),
+    country_sel_camera = reactive(input$country_sel_camera), 
     chamber_r = reactive(input$chamber_sel_camera),
     year_r    = reactive(input$year_sel_camera),
     party_col = "party_name_sub_leg",
@@ -992,6 +1054,55 @@ observeEvent(input$btn_howto, {
     ");
     }
   })
+
+  # ==== 14) GO to camera tab ======================================================
+
+observeEvent(input$switch_to_camera, {
+  req(input$switch_to_camera)
+  
+  # 1. IMMEDIATE ACTIONS
+  is_navigating(TRUE)
+  shinyjs::show("global-loader")  
+
+  target_country <- input$switch_to_camera$country
+  target_state   <- input$switch_to_camera$state
+  target_year_raw <- as.integer(input$switch_to_camera$year)
+  
+  # 2. TAB SWITCH
+  updateTabItems(session, "tabs", selected = "camera")
+  
+  # 3. CASCADE DELAYS
+  shinyjs::delay(300, {
+    updateSelectInput(session, "country_sel_camera", selected = target_country)
+    
+    shinyjs::delay(800, {
+      updateSelectInput(session, "state_sel_camera", selected = target_state)
+      
+      shinyjs::delay(1000, {
+        yrs <- sled_years_scoped_camera()
+        yrs_num <- as.integer(yrs)
+        
+        if (length(yrs_num) > 0) {
+          lower_years <- yrs_num[yrs_num <= target_year_raw]
+          final_year <- if (length(lower_years) > 0) max(lower_years) else min(yrs_num)
+          
+          shinyWidgets::updateSliderTextInput(
+            session, "year_sel_camera", 
+            choices = as.character(sort(yrs_num)),
+            selected = as.character(final_year)
+          )
+        }
+        
+        # 4. RELEASE AND HIDE (1.2s Cooldown)
+        shinyjs::delay(2000, {
+          is_navigating(FALSE)
+          shinyjs::hide("global-loader")
+          print("LOG [Switch]: Navigation complete, loader hidden.")
+        })
+      })
+    })
+  })
+})
   
 
   

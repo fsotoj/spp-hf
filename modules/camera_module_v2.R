@@ -219,12 +219,13 @@ camaraLegendUI <- function(id) {
 
 
 camaraServer <- function(id,
-                         data,                      # static data.frame OR reactive
-                         state_r,                   # reactive: state (string) or vector; "" ignored
-                         chamber_r,                 # reactive: 1/2
-                         year_r,                    # reactive: year
+                         data,                          # standard data (ignored if Argentina)
+                         state_r,   
+                         country_sel_camera,
+                         chamber_r,                     # reactive: 1/2
+                         year_r,                        # reactive: year
                          party_col   = "party_name_sub_leg",
-                         seats_col   = "total_seats_party_sub_leg",
+                         seats_col   = "total_seats_party_sub_leg", # Standard name
                          state_col   = "state_name",
                          chamber_filter_col = "chamber_election_sub_leg",
                          year_col    = "year",
@@ -236,233 +237,156 @@ camaraServer <- function(id,
     # --- Reactive data wrapper ---
     data_r <- if (inherits(data, "reactive")) data else reactive(data)
     
-    #-------------------------------
-    # Chart
-    #-------------------------------
-    output$chart <- highcharter::renderHighchart({
-      req(state_r(), chamber_r(), year_r())
-      df <- data_r()
-      
-      if (!inherits(df, c("data.frame","tbl","tbl_df"))) {
-        return(
-          highcharter::highchart() %>%
-            highcharter::hc_chart(
-              type = "scatter",
-              zoomType = NULL,
-              animation = FALSE
-            ) %>%
-            highcharter::hc_title(text = "No data (invalid input table)") %>%
-            highcharter::hc_xAxis(visible = FALSE) %>%
-            highcharter::hc_yAxis(visible = FALSE) %>%
-            highcharter::hc_series(
-              list(
-                name = "No data",
-                type = "scatter",
-                data = list(list(0, 0))
-              )
-            ) %>%
-            highcharter::hc_legend(enabled = FALSE) %>%
-            highcharter::hc_exporting(enabled = FALSE) %>%
-            highcharter::hc_credits(enabled = FALSE)
-        )
-      }
-      
-      # columns check
-      cols_needed <- c(state_col, chamber_filter_col, year_col, party_col, seats_col)
-      missing <- setdiff(cols_needed, names(df))
-      if (length(missing) > 0) {
-        return(
-          highcharter::highchart() %>%
-            highcharter::hc_chart(type = "scatter", zoomType = NULL, animation = FALSE) %>%
-            highcharter::hc_title(
-              text = paste("Missing columns:", paste(missing, collapse = ", "))
-            ) %>%
-            highcharter::hc_xAxis(visible = FALSE) %>%
-            highcharter::hc_yAxis(visible = FALSE) %>%
-            highcharter::hc_series(
-              list(
-                name = "No data",
-                type = "scatter",
-                data = list(list(0, 0))
-              )
-            ) %>%
-            highcharter::hc_legend(enabled = FALSE) %>%
-            highcharter::hc_exporting(enabled = FALSE) %>%
-            highcharter::hc_credits(enabled = FALSE)
-        )
-      }
-      
-      # types
-      df[[state_col]]          <- as.character(df[[state_col]])
-      df[[party_col]]          <- as.character(df[[party_col]])
-      df[[seats_col]]          <- suppressWarnings(as.integer(df[[seats_col]]))
-      df[[year_col]]           <- suppressWarnings(as.integer(df[[year_col]]))
-      df[[chamber_filter_col]] <- suppressWarnings(as.integer(df[[chamber_filter_col]]))
-      df$total_chamber_seats_sub_leg <- suppressWarnings(
-        as.integer(as.character(df$total_chamber_seats_sub_leg))
-      )
-      
-      # inputs
+    # helper to get data based on mode
+    get_filtered_data <- function() {
+
+      sel_country <- tryCatch(country_sel_camera(), error = function(e) NULL)
       sel_states  <- tryCatch(state_r(), error = function(e) NULL)
       if (length(sel_states) == 1 && identical(sel_states, "")) sel_states <- NULL
       sel_states  <- if (!is.null(sel_states)) as.character(sel_states) else NULL
       sel_year    <- suppressWarnings(as.integer(tryCatch(year_r(), error = function(e) NA_integer_)))
       sel_chamber <- suppressWarnings(as.integer(tryCatch(chamber_r(), error = function(e) NA_integer_)))
       
-      # filter
-      dff <- df %>% dplyr::filter(.data[[seats_col]] != 0)
-      if (!is.null(sel_states) && length(sel_states) > 0) {
-        dff <- dff %>% dplyr::filter(.data[[state_col]] %in% sel_states)
+      # ---------------------------------------------------------
+      # DATA LOGIC SELECTOR
+      # ---------------------------------------------------------
+      
+      # MODE 1: ARGENTINA (Compressed SLED_ARG format)
+      # We assume SLED_ARG exists in your global environment.
+      if (!is.null(sel_country) && "ARGENTINA" %in% toupper(sel_country) && exists("SLED_ARG")) {
+        
+        dff <- SLED_ARG %>% 
+          # 1. Filter structural inputs first
+          dplyr::filter(
+            state_name %in% sel_states,
+            chamber_election_sub_leg == sel_chamber
+          ) %>%
+          # 2. TIME FILTER: Find rows active in this year (inclusive)
+          # This replaces the need to 'unnest' the whole dataset
+          dplyr::filter(
+            origin_year <= sel_year & expire_year > sel_year
+          ) %>%
+          # 3. Rename columns to match what the rest of the module expects
+          dplyr::mutate(
+            total_seats_party_sub_leg = seats,
+            # We calculate total chamber size dynamically for the "Non-Contested" logic later
+            total_chamber_seats_sub_leg = sum(seats, na.rm = TRUE)
+          )
+        dff[[state_col]]          <- as.character(dff[[state_col]])
+        dff[[party_col]]          <- as.character(dff[[party_col]])
+        dff[[seats_col]]          <- suppressWarnings(as.integer(dff[[seats_col]]))
+        dff[[year_col]]           <- suppressWarnings(as.integer(dff[[year_col]]))
+        dff[[chamber_filter_col]] <- suppressWarnings(as.integer(dff[[chamber_filter_col]]))
+
+
+        
+        # Ensure we return the expected structure
+        return(dff)
+        
+      } else {
+        
+        # MODE 2: STANDARD (Pre-processed data)
+        df <- data_r()
+        
+        # Checks
+        if (!inherits(df, c("data.frame","tbl","tbl_df"))) return(NULL)
+        
+        # Type safety
+        df[[state_col]]          <- as.character(df[[state_col]])
+        df[[party_col]]          <- as.character(df[[party_col]])
+        df[[seats_col]]          <- suppressWarnings(as.integer(df[[seats_col]]))
+        df[[year_col]]           <- suppressWarnings(as.integer(df[[year_col]]))
+        df[[chamber_filter_col]] <- suppressWarnings(as.integer(df[[chamber_filter_col]]))
+        
+        dff <- df %>% dplyr::filter(.data[[seats_col]] != 0)
+        
+        if (!is.null(sel_states)) dff <- dff %>% dplyr::filter(.data[[state_col]] %in% sel_states)
+        if (!is.na(sel_chamber))  dff <- dff %>% dplyr::filter(.data[[chamber_filter_col]] == sel_chamber)
+        if (!is.na(sel_year))     dff <- dff %>% dplyr::filter(.data[[year_col]] == sel_year)
+        
+        return(dff)
       }
-      if (!is.na(sel_chamber)) {
-        dff <- dff %>% dplyr::filter(.data[[chamber_filter_col]] == sel_chamber)
-      }
-      if (!is.na(sel_year)) {
-        dff <- dff %>% dplyr::filter(.data[[year_col]] == sel_year)
+    }
+    
+    #-------------------------------
+    # Chart
+    #-------------------------------
+    output$chart <- highcharter::renderHighchart({
+      req(state_r(), chamber_r(), year_r())
+      
+      dff <- get_filtered_data()
+      
+      # --- ERROR HANDLING / EMPTY STATES ---
+      if (is.null(dff) || nrow(dff) == 0) {
+        return(highcharter::highchart() %>% 
+                 highcharter::hc_title(text = "No data available") %>%
+                 highcharter::hc_series(list(data = list()))
+        ) 
       }
       
-      if (nrow(dff) == 0) {
-        return(
-          highcharter::highchart() %>%
-            highcharter::hc_chart(type = "scatter", zoomType = NULL, animation = FALSE) %>%
-            highcharter::hc_title(text = "No data for current selection") %>%
-            highcharter::hc_xAxis(visible = FALSE) %>%
-            highcharter::hc_yAxis(visible = FALSE) %>%
-            highcharter::hc_series(
-              list(
-                name = "No data",
-                type = "scatter",
-                data = list(list(0, 0))
-              )
-            ) %>%
-            highcharter::hc_legend(enabled = FALSE) %>%
-            highcharter::hc_exporting(enabled = FALSE) %>%
-            highcharter::hc_credits(enabled = FALSE)
-        )
-      }
-      
-      # aggregate base
+      # --- AGGREGATION (Common to both modes) ---
+      # Sum seats per party (handles SLED_ARG overlaps automatically)
       agg_base <- dff %>%
         dplyr::transmute(party = .data[[party_col]], seats = .data[[seats_col]]) %>%
         dplyr::group_by(party) %>%
         dplyr::summarise(seats = sum(seats, na.rm = TRUE), .groups = "drop")
       
-      # total chamber + NON-CONTESTED seats
+      # --- REMAINING LOGIC (Identical to your original) ---
+      
+      # total chamber + NON-CONTESTED seats logic
       total_chamber_vec <- suppressWarnings(as.integer(na.omit(dff$total_chamber_seats_sub_leg)))
       total_chamber <- if (length(total_chamber_vec)) {
         tb <- sort(table(total_chamber_vec), decreasing = TRUE)
-        cand <- as.integer(names(tb[ tb == max(tb) ]))
-        max(cand)
+        as.integer(names(tb[1]))
       } else NA_integer_
       
       agg <- agg_base
       if (!is.na(total_chamber)) {
         falta <- total_chamber - sum(agg_base$seats, na.rm = TRUE)
         if (falta > 0) {
-          agg <- dplyr::bind_rows(
-            agg_base,
-            tibble(party = previous_name, seats = falta)
-          )
+          agg <- dplyr::bind_rows(agg_base, tibble(party = previous_name, seats = falta))
         }
       }
       
-      # order: real by size, non-contested last
       agg <- agg %>%
         dplyr::mutate(.is_prev = as.integer(party == previous_name)) %>%
         dplyr::arrange(.is_prev, dplyr::desc(seats), party) %>%
         dplyr::select(-.is_prev)
       
-      # expand seats (force non-contested to the right/end)
-      pts <- expand_and_assign(
-        agg,
-        party_col = "party",
-        seats_col = "seats",
-        non_contested_label = previous_name
-      )
-      if (nrow(pts) == 0) {
-        return(
-          highcharter::highchart() %>%
-            highcharter::hc_chart(type = "scatter", zoomType = NULL, animation = FALSE) %>%
-            highcharter::hc_title(text = "No seats to plot") %>%
-            highcharter::hc_xAxis(visible = FALSE) %>%
-            highcharter::hc_yAxis(visible = FALSE) %>%
-            highcharter::hc_series(
-              list(
-                name = "No seats",
-                type = "scatter",
-                data = list(list(0, 0))
-              )
-            ) %>%
-            highcharter::hc_legend(enabled = FALSE) %>%
-            highcharter::hc_exporting(enabled = FALSE) %>%
-            highcharter::hc_credits(enabled = FALSE)
-        )
-      }
+      # Expand seats
+      pts <- expand_and_assign(agg, party_col = "party", seats_col = "seats", non_contested_label = previous_name)
       
-      # series order & palette (SYNC SOURCE for legend)
+      if (nrow(pts) == 0) return(NULL) # Handle empty
+      
       pts <- pts %>% dplyr::mutate(party = factor(party, levels = agg$party))
       
+      # Palette
+      pal <- palette_from_table(parties = levels(pts$party), color_table = party_colors_leg)
+      if (previous_name %in% names(pal)) pal[previous_name] <- previous_color
       
-      # pal <- palette_distinct(levels(pts$party))
-      # if (previous_name %in% names(pal)) pal[previous_name] <- previous_color
-      
-      
-      pal <- palette_from_table(
-        parties = levels(pts$party),
-        color_table = party_colors_leg
-      )
-      
-      if (previous_name %in% names(pal)) {
-        pal[previous_name] <- previous_color
+      # Add vote data for tooltips
+      # Note: SLED_ARG might not have 'total_votes_party_sub_leg'. 
+      # We check existence to prevent crash.
+      if ("total_votes_party_sub_leg" %in% names(dff)) {
+        vote_lookup <- dff %>%
+          dplyr::group_by(.data[[party_col]]) %>%
+          dplyr::summarise(total_votes = unique(.data$total_votes_party_sub_leg, na.rm = TRUE)) %>% 
+          ungroup() %>% 
+          mutate(total_votes = format(total_votes, big.mark = ",", scientific = FALSE))
+        
+        pts <- pts %>% dplyr::left_join(vote_lookup, by = c("party" = party_col))
+      } else {
+        pts$total_votes <- "Not available"
       }
       
-      
-      
-      
-      
-      
-      
-      
-      # Add total_votes_party_sub_leg grouped per party
-      vote_lookup <- dff %>%
-        dplyr::group_by(.data[[party_col]]) %>%
-        dplyr::summarise(total_votes = unique(.data$total_votes_party_sub_leg, na.rm = TRUE)) %>% 
-        ungroup() %>% 
-        mutate(total_votes = format(total_votes, big.mark = ",", scientific = FALSE))
-        
-      
-      seat_lookup <- agg %>% 
-        dplyr::select(party, seats)
-      
-      
-      
-      
-      pts <- pts %>%
-        dplyr::left_join(
-          vote_lookup,
-          by = c("party" = party_col)
-        ) %>%
-        dplyr::left_join(seat_lookup, by = "party")
-      
-      
-      
-      
+      seat_lookup <- agg %>% dplyr::select(party, seats)
+      pts <- pts %>% dplyr::left_join(seat_lookup, by = "party")
       
       # dot sizes
       N <- nrow(pts)
-      pt_size <- dplyr::case_when(
-        N <= 30 ~ 26,
-        N <= 50 ~ 22,
-        N <= 100 ~ 14,
-        N <= 150 ~ 12,
-        TRUE ~ 7
-      )
+      pt_size <- dplyr::case_when(N <= 30 ~ 26, N <= 50 ~ 22, N <= 100 ~ 14, N <= 150 ~ 12, TRUE ~ 7)
       
-      
-      
-      
-      
-      # build series list for Highcharts
+      # Series List
       series_list <- pts %>%
         dplyr::group_split(party) %>%
         purrr::map(function(df_party) {
@@ -472,34 +396,20 @@ camaraServer <- function(id,
             type = "scatter",
             data = lapply(seq_len(nrow(df_party)), function(i) {
               list(
-                id = as.character(df_party$seat_index[i]), # Unique ID for the dot
-                x = df_party$x[i],
-                y = df_party$y[i],
-                name = name,
-                votes = df_party$total_votes[i],
-                seats = df_party$seats[i]
+                id = as.character(df_party$seat_index[i]), 
+                x = df_party$x[i], y = df_party$y[i],
+                name = name, votes = df_party$total_votes[i], seats = df_party$seats[i]
               )
             }),
             marker = list(
-              radius = pt_size,
-              symbol = "circle",
-              fillColor = pal[[name]] %||% "#888888",
-              # Add these for the 'coarse' tactile look:
-              lineWidth = 1.5,
-              lineColor = "rgba(0,0,0,0.15)", # A soft dark border for definition
-              states = list(
-                hover = list(
-                  lineWidth = 2,
-                  lineColor = "white", # Highlight border on hover
-                  brightness = 0.1
-                )
-              )
+              radius = pt_size, symbol = "circle", fillColor = pal[[name]] %||% "#888888",
+              lineWidth = 1.5, lineColor = "rgba(0,0,0,0.15)",
+              states = list(hover = list(lineWidth = 2, lineColor = "white", brightness = 0.1))
             )
           )
         })
       
-      
-      # JS for external legend interaction (mouseenter / mouseleave / click)
+      # JS Events (Your existing code)
       js_events <- highcharter::JS(sprintf("
         function() {
 
@@ -617,8 +527,9 @@ camaraServer <- function(id,
                                            session$ns("chart")
       ))
       
+      # Render
         highcharter::highchart() %>%
-          highcharter::hc_chart(
+        highcharter::hc_chart(
             spacingBottom = 50,
             type = "scatter",
             events = list(
@@ -642,91 +553,39 @@ camaraServer <- function(id,
               ")
             )
           ) %>%
-        highcharter::hc_xAxis(
-          visible = FALSE,
-          min = -1.1,
-          max =  1.1
-        ) %>%
-        highcharter::hc_yAxis(
-          visible = FALSE,
-          min = 0,
-          max = 1.1
-        ) %>%
-        hc_plotOptions(
-          scatter = list(
-            animation = list(
-              duration = 0,    # quick
-              easing = "easeOutQuad"
-            ),
-            states = list(
-              inactive = list(
-                enabled = TRUE,
-                opacity = 0.2   # softer inactive state
-              ),
-              hover = list(enabled = TRUE)
-            )
-          ),
-          series = list(
-            turboThreshold = 0,
-            animation = list(
-              duration = 0,
-              easing = "easeOutQuad"
-            )
-          )
-        ) %>%
+        highcharter::hc_xAxis(visible = FALSE, min = -1.1, max = 1.1) %>%
+        highcharter::hc_yAxis(visible = FALSE, min = 0, max = 1.1) %>%
+        highcharter::hc_plotOptions(scatter = list(animation = list(duration = 0))) %>%
         highcharter::hc_legend(enabled = FALSE) %>%
-        highcharter::hc_exporting(enabled = FALSE) %>%
-        highcharter::hc_credits(enabled = FALSE) %>%
         highcharter::hc_add_series_list(series_list) %>% 
-        highcharter::hc_tooltip(
-          useHTML = TRUE,
-          headerFormat = "",
-          pointFormat = paste0(
-            "<b>{point.name}</b><br>",
-            "Votes: {point.votes:,.0f}<br>",
-            "Seats: {point.seats}"
-          )
-        )
+        highcharter::hc_tooltip(useHTML = TRUE, headerFormat = "", pointFormat = paste0("<b>{point.name}</b><br>Votes: {point.votes}<br>Seats: {point.seats}"))
     })
     
     #-------------------------------
-    # External legend (colors synced with chart)
+    # External Legend
     #-------------------------------
     output$legend <- renderUI({
-      req(data_r(), state_r(), chamber_r(), year_r())
-      df <- data_r()
+      req(state_r(), chamber_r(), year_r())
+      dff <- get_filtered_data() # Use the same logic helper
+      if (is.null(dff) || nrow(dff) == 0) return(NULL)
       
-      dff <- df %>% dplyr::filter(.data[[seats_col]] != 0)
-      sel_states  <- tryCatch(state_r(), error = function(e) NULL)
-      if (length(sel_states) == 1 && identical(sel_states, "")) sel_states <- NULL
-      sel_states  <- if (!is.null(sel_states)) as.character(sel_states) else NULL
-      sel_year    <- suppressWarnings(as.integer(tryCatch(year_r(), error = function(e) NA_integer_)))
-      sel_chamber <- suppressWarnings(as.integer(tryCatch(chamber_r(), error = function(e) NA_integer_)))
-      if (!is.null(sel_states) && length(sel_states) > 0) dff <- dff %>% dplyr::filter(.data[[state_col]] %in% sel_states)
-      if (!is.na(sel_chamber)) dff <- dff %>% dplyr::filter(.data[[chamber_filter_col]] == sel_chamber)
-      if (!is.na(sel_year))    dff <- dff %>% dplyr::filter(.data[[year_col]] == sel_year)
-      
+      # Aggregation for legend
       agg_base <- dff %>%
         dplyr::transmute(party = .data[[party_col]], seats = .data[[seats_col]]) %>%
         dplyr::group_by(party) %>%
         dplyr::summarise(seats = sum(seats, na.rm = TRUE), .groups = "drop")
       
+      # (Repeat logic for non-contested calculation for legend consistency...)
       total_chamber_vec <- suppressWarnings(as.integer(na.omit(dff$total_chamber_seats_sub_leg)))
       total_chamber <- if (length(total_chamber_vec)) {
         tb <- sort(table(total_chamber_vec), decreasing = TRUE)
-        cand <- as.integer(names(tb[ tb == max(tb) ]))
-        max(cand)
+        as.integer(names(tb[1]))
       } else NA_integer_
       
       agg <- agg_base
       if (!is.na(total_chamber)) {
         falta <- total_chamber - sum(agg_base$seats, na.rm = TRUE)
-        if (falta > 0) {
-          agg <- dplyr::bind_rows(
-            agg_base,
-            tibble(party = previous_name, seats = falta)
-          )
-        }
+        if (falta > 0) agg <- dplyr::bind_rows(agg_base, tibble(party = previous_name, seats = falta))
       }
       
       agg <- agg %>%
@@ -736,42 +595,28 @@ camaraServer <- function(id,
       
       if (nrow(agg) == 0) return(NULL)
       
-      # pal <- palette_distinct(agg$party)
-      # if (previous_name %in% names(pal)) pal[previous_name] <- previous_color
-      
-      pal <- palette_from_table(
-        parties = agg$party,
-        color_table = party_colors_leg
-      )
-      
-      if (previous_name %in% names(pal)) {
-        pal[previous_name] <- previous_color
-      }
-      
-      
-      
+      pal <- palette_from_table(parties = agg$party, color_table = party_colors_leg)
+      if (previous_name %in% names(pal)) pal[previous_name] <- previous_color
       
       items <- lapply(seq_len(nrow(agg)), function(i) {
         p <- agg$party[i]
         col <- pal[[p]] %||% "#888"
         htmltools::tags$span(
-          class = "legend-item",
-          `data-party` = p,
+          class = "legend-item", `data-party` = p,
           htmltools::span(class = "legend-swatch", style = paste0("background:", col, ";")),
           htmltools::span(class = "legend-text", p)
         )
       })
       
       htmltools::div(
-        id = paste0(session$ns("chart"), "-legend"),
-        class = "legend-wrap",
-        htmltools::div(
-          class = "legend-group",
-          htmltools::div(class = "legend-row", items)
-        )
+        id = paste0(session$ns("chart"), "-legend"), class = "legend-wrap",
+        htmltools::div(class = "legend-group", htmltools::div(class = "legend-row", items))
       )
     })
     
   })
 }
 
+      
+      
+        

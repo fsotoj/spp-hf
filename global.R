@@ -92,6 +92,7 @@ NED <- read.xlsx(get_data("NED (v.0.1).xlsx")) %>%
 SEED <- read.xlsx(get_data("SEED SHINY (v.0.1).xlsx"))
 SED  <- read.xlsx(get_data("SED (v.0.1).xlsx"))
 SLED <- read.xlsx(get_data("SLED (v.0.1).xlsx"))
+SLED_ARG <- read.xlsx(get_data("SLED_ARG.xlsx"))
 SDI  <- read.xlsx(get_data("SDI (v.1).xlsx")) 
 
 cols_to_fill <- c("chamber_sub_leg",as.vector(outer(setdiff(sled_names,c("chamber_sub_leg","concurrent_election_with_nat_sub_leg")), c("_1","_2"), paste0)))
@@ -136,7 +137,7 @@ data <- left_join(NED,SED,c("country_name","country_code","year")) %>%
 geom <- st_read(get_data("geom_simple_maps.geojson"))
 
 party_colors     <- read.xlsx(get_data("party_colors.xlsx"))
-party_colors_leg <- read.xlsx(get_data("party_colors_leg.xlsx"))
+party_colors_leg <- read.xlsx(get_data("party_colors_leg_V2.xlsx"))
 
 
 country_bboxes <- list(

@@ -437,75 +437,75 @@ mapModuleServer <- function(id, data_map, input_var_sel, dict, country_bboxes, i
           highlightOptions = highlightOptions(weight = 5, color = "#666", fillOpacity = 1),
           label = ~paste0(stringr::str_to_title(state_name_geom), ": ", format_leaflet_value(.leaflet_value, var_info()$type)),
           popup = ~paste0(
-            #"<div style='background-color:#041d2d; color:#f4e842; padding:6px 6px;
-            "<style>
-            /* Base chevron */
-            details summary::before {
-            content: '▶';
-            float: right;
-            display: inline-block;
-            transition: transform 0.2s ease-in-out;
-            }
-            /* Rotate when open */
-            details[open] summary::before {
-            transform: rotate(90deg);
-            }
-            /* Normal state (blue + underline) */
-            details summary {
-            color: var(--magenta);
-            text-decoration:underline;
-            cursor:pointer;
-            display:inline-flex;
-            font-weight:600;
-            }
-            /* Open state (darker, no underline) */
-            details[open] summary {
-            color:var(--purple);
-            text-decoration:none;
-            }
-            </style>",
-            
-            "<div style='color:#00000; padding:1px 1px;
-            border-radius:1px; font-weight:bold; font-size:15px; text-align:left;'>",
-            var_info()$pretty_name, ": ", format_leaflet_value(.leaflet_value, var_info()$type),
+            # --- 1. Header ---
+            "<div style='color:#000; padding:1px; font-weight:bold; font-size:15px; text-align:left;'>",
+              var_info()$pretty_name, ": ", format_leaflet_value(.leaflet_value, var_info()$type),
             "</div>",
             
-            "<div style='border:0; height:1px; 
-            background:linear-gradient(90deg, rgba(255,169,42,0), rgba(255,169,42,0.8), rgba(255,169,42,0));
-            margin:1px 0;'></div>",
+            # CSS Class: popup-divider
+            "<div class='popup-divider'></div>",
+            
             "<b>State:</b> ", stringr::str_to_title(state_name_geom), "<br/>",
             "<b>Governor:</b> ", stringr::str_to_title(winner_candidate_sub_exe), "<br/>",
             "<b>Party:</b> ", stringr::str_to_title(head_party_sub_exe), "<br/>",
-            "<b>Chamber Structure:</b> ", case_when(chamber_sub_leg == 1 ~ "Unicameral",
-                                                    chamber_sub_leg == 2 ~ "Bicameral",
-                                                    is.na(chamber_sub_leg)~ "Not available"), "<br/>",
+            "<b>Chamber:</b> ", 
+              case_when(
+                chamber_sub_leg == 1 ~ "Unicameral",
+                chamber_sub_leg == 2 ~ "Bicameral",
+                is.na(chamber_sub_leg) ~ "N/A"
+              ), "<br/>",
             
-            "<details style='margin-top:4px;'>",
-            "<summary>Governor details</summary>",
-            "<div style='margin-top:1px;'>",
-            "<b>Party Ideology:</b> ", dplyr::case_when(
-              ideo_party_sub_exe == 1 ~ "Left",
-              ideo_party_sub_exe == 2 ~ "Center Left",
-              ideo_party_sub_exe == 3 ~ "Center Right",
-              ideo_party_sub_exe == 4 ~ "Right",
-              TRUE ~ as.character(ideo_party_sub_exe)
-            ), "<br/>",
-            "<b>Alignment:</b> ", ifelse(alignment_with_nat_sub_exe == 1, "Yes", "No"), "<br/>",
-            "<b>Reelected:</b> ", ifelse(consecutive_reelection_sub_exe == 1, "Yes", "No"), "<br/>",
-            "</div>",
+            # --- 2. Details: Governor (CSS Class: popup-details) ---
+            "<details class='popup-details'>",
+              "<summary>Governor details</summary>",
+              "<div style='margin-top:2px; font-size:12px;'>",
+                "<b>Ideology:</b> ", dplyr::case_when(
+                  ideo_party_sub_exe == 1 ~ "Left",
+                  ideo_party_sub_exe == 2 ~ "Center Left",
+                  ideo_party_sub_exe == 3 ~ "Center Right",
+                  ideo_party_sub_exe == 4 ~ "Right",
+                  TRUE ~ as.character(ideo_party_sub_exe)
+                ), "<br/>",
+                "<b>Alignment:</b> ", ifelse(alignment_with_nat_sub_exe == 1, "Yes", "No"), "<br/>",
+                "<b>Reelected:</b> ", ifelse(consecutive_reelection_sub_exe == 1, "Yes", "No"),
+              "</div>",
             "</details>",
             
-            ifelse(is.na(chamber_sub_leg),"",
-                   paste0("<details style='margin-top:4px;'>",
-                          "<summary>Legislative details</summary>",
-                          "<div style='margin-top:1px;'>",
-                          "<b>Lower Chamber seats:</b> ", total_chamber_seats_sub_leg_1, "<br/>",
-                          ifelse(chamber_sub_leg == 1,"",
-                                 paste0("<b>Upper Chamber seats:</b> ", total_chamber_seats_sub_leg_2, "<br/>")),
-                          "</div>",
-                          "</details>"
-                          ))
+            # --- 3. Details: Legislative (CSS Class: popup-details) ---
+            ifelse(is.na(chamber_sub_leg), "",
+              paste0(
+                "<details class='popup-details'>",
+                  "<summary>Legislative details</summary>",
+                  "<div style='margin-top:2px; font-size:12px;'>",
+                    "<b>Lower Chamber:</b> ", total_chamber_seats_sub_leg_1, " seats<br/>",
+                    ifelse(chamber_sub_leg == 1, "", paste0("<b>Upper Chamber:</b> ", total_chamber_seats_sub_leg_2, " seats<br/>")),
+                  "</div>",
+                "</details>"
+              )
+            ),
+            
+            # --- 4. Camera Button (CSS Classes: camera-link-container, btn-camera-link) ---
+            ifelse(is.na(chamber_sub_leg), "", 
+              paste0(
+                "<div class='camera-link-container'>",
+                  "<a href='#' class='btn-camera-link' ",
+                    "onclick=\"",
+                      "var payload = {",
+                        "country: '", input_country_sel(), "', ",
+                        "state: '", state_name_geom, "', ", 
+                        "year: '", year, "'",
+                      "};",
+                      "Shiny.setInputValue('switch_to_camera', payload, {priority: 'event'});",
+                      "return false;",
+                    "\"",
+                  ">",
+                    "<i class='fa fa-landmark'></i>",
+                    "Camera Viz Tool",
+                  "</a>",
+                "</div>"
+              )
             )
+          )
         )
       
       

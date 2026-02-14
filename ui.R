@@ -68,6 +68,23 @@ ui <- dashboardPage(
   dashboardSidebar(
     width = 250,
     useShinyjs(),
+
+      hidden(
+          div(id = "global-loader",
+              div(class = "loader-bouncing-spp",
+                  # The 3 Bouncing Circles
+                  div(class = "circle"),
+                  div(class = "circle"),
+                  div(class = "circle"),
+                  # The Shadows
+                  div(class = "shadow"),
+                  div(class = "shadow")
+              ),
+              h2("Syncing Data...")
+          )
+        ),
+
+
     tagList(
       sidebarMenu(id = "tabs",
                   menuItem("About", tabName = "about", icon = icon("info-circle")),
@@ -232,7 +249,7 @@ ui <- dashboardPage(
     ")),
     tabItems(
       tabItem(
-        tabName = "map_tab", # QUE PASA ACAAAAAA
+        tabName = "map_tab", 
         tagList(
           mapModuleUI("map1"),
           
@@ -332,16 +349,7 @@ ui <- dashboardPage(
                          camaraUI("cam"),
                          div(
                             style = "margin-top: 20px; padding: 0 5% 0 10%; overflow: hidden;",
-                           shinyWidgets::sliderTextInput(
-                             inputId  = "year_sel_camera", label = "Year",
-                             choices  = as.character(seq(1983, 2024, 1)),
-                             grid     = TRUE, width = "90%",
-                             selected = 2010,
-                             animate  = shiny::animationOptions(
-                               interval = 2000,
-                               loop = FALSE
-                             )
-                           )
+                           uiOutput("year_selector_camera_ui")
                          )
                   ),
                   column(3,

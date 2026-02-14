@@ -1251,3 +1251,212 @@ background-color: var(--purple) !important; color: #fff !important;
   color: #FFA92A !important; /* Orange hover to match branding */
   transition: color 0.2s ease;
 }
+
+/* =========================================================
+   22) GLOBAL LOADER (BOUNCING THEMED VERSION)
+   ========================================================= */
+
+#global-loader {
+  position: fixed;
+  
+  /* Center the container mathematically */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  
+  /* Make dimensions MASSIVE to counteract the body zoom 
+     (e.g., if zoom is 0.5, 200vw becomes 100% of screen) */
+  width: 200vw; 
+  height: 200vh; 
+  
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  z-index: 999999 !important;
+  
+  /* Flexbox still centers the content within this huge box */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  
+  /* Optional: Prevents the loader dots themselves from looking too small on zoom */
+  zoom: 1 !important; 
+}
+
+
+#global-loader h2 {
+  margin-top: 30px;                /* Give the bouncing balls space */
+  margin-bottom: 0;
+  
+  /* Typography */
+  font-family: 'Source Sans Pro', sans-serif; /* Matches AdminLTE default */
+  font-weight: 400;                /* Lighter weight looks more modern */
+  font-size: 14px;                 /* Smaller, cleaner text */
+  letter-spacing: 3px;             /* Wide spacing feels elegant */
+  text-transform: uppercase;
+  
+  /* Color & Animation */
+  color: var(--gray);            /* Use your secondary brand color */
+  opacity: 0.8;
+  animation: text-pulse 2s infinite ease-in-out;
+}
+
+/* Subtle breathing effect for the text */
+@keyframes text-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(0.98); }
+  50%      { opacity: 1;   transform: scale(1); }
+}
+
+
+
+.loader-bouncing-spp {
+  width: 200px;
+  height: 60px;
+  position: relative;
+  z-index: 1;
+}
+
+.loader-bouncing-spp .circle {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  border-radius: 50%;
+  left: 15%;
+  transform-origin: 50%;
+  animation: circle-bounce .5s alternate infinite ease;
+}
+
+/* Theme Colors for Circles */
+.loader-bouncing-spp .circle:nth-child(1) { background-color: var(--orange); }
+.loader-bouncing-spp .circle:nth-child(2) { background-color: var(--orange); left: 45%; animation-delay: .2s; }
+.loader-bouncing-spp .circle:nth-child(3) { background-color: var(--orange); left: auto; right: 15%; animation-delay: .3s; }
+
+@keyframes circle-bounce {
+  0% {
+    top: 60px;
+    height: 5px;
+    border-radius: 50px 50px 25px 25px;
+    transform: scaleX(1.7);
+  }
+  40% {
+    height: 20px;
+    border-radius: 50%;
+    transform: scaleX(1);
+  }
+  100% { top: 0%; }
+}
+
+.loader-bouncing-spp .shadow {
+  width: 20px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: rgba(0,0,0,0.2); /* Muted shadow */
+  position: absolute;
+  top: 62px;
+  transform-origin: 50%;
+  z-index: -1;
+  left: 15%;
+  filter: blur(1px);
+  animation: shadow-pulse .5s alternate infinite ease;
+}
+
+.loader-bouncing-spp .shadow:nth-child(4) { left: 45%; animation-delay: .2s; }
+.loader-bouncing-spp .shadow:nth-child(5) { left: auto; right: 15%; animation-delay: .3s; }
+
+@keyframes shadow-pulse {
+  0% { transform: scaleX(1.5); }
+  40% { transform: scaleX(1); opacity: .7; }
+  100% { transform: scaleX(.2); opacity: .4; }
+}
+
+#global-loader h2 {
+  margin-top: 40px;
+  font-weight: 600;
+  color: var(--gray);
+  text-transform: uppercase;
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+}
+
+
+/* =========================================================
+   23) MAP POPUP STYLING (DETAILS & ACTION BUTTON)
+   ========================================================= */
+
+/* --- The Divider Line --- */
+.popup-divider {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255,169,42,0), var(--orange), rgba(255,169,42,0));
+  margin: 4px 0 8px 0;
+  opacity: 0.6;
+}
+
+/* --- Collapsible Details (Governor/Legislature) --- */
+.popup-details {
+  margin-top: 4px;
+}
+
+.popup-details summary {
+  color: var(--magenta) !important;
+  text-decoration: underline;
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 600;
+  font-size: 13px;
+  list-style: none; /* Hides default triangle in some browsers */
+}
+
+.popup-details[open] summary {
+  color: var(--purple) !important;
+  text-decoration: none;
+}
+
+/* Custom Arrow using ::before */
+.popup-details summary::before {
+  content: '▶';
+  float: right;
+  display: inline-block;
+  transition: transform 0.2s ease-in-out;
+  margin-left: 6px;
+  font-size: 10px;
+  margin-top: 3px;
+}
+
+.popup-details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+/* --- The Camera Action Button --- */
+.camera-link-container {
+  text-align: center;
+  margin-top: 12px;
+  margin-bottom: 4px;
+}
+
+.btn-camera-link {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--orange) !important;
+  color: var(--text-dark) !important;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-weight: 700;
+  text-decoration: none !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  transition: all 0.2s ease;
+  font-size: 13px;
+}
+
+/* Hover Effect */
+.btn-camera-link:hover,
+.btn-camera-link:focus {
+  background-color: var(--purple) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 8px rgba(114, 36, 100, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-camera-link i {
+  margin-right: 6px;
+}
