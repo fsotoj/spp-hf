@@ -137,7 +137,7 @@ data <- left_join(NED,SED,c("country_name","country_code","year")) %>%
 geom <- st_read(get_data("geom_simple_maps.geojson"))
 
 party_colors     <- read.xlsx(get_data("party_colors.xlsx"))
-party_colors_leg <- read.xlsx(get_data("party_colors_leg_V2.xlsx"))
+party_colors_leg <- read.xlsx(get_data("party_colors_leg_v2.xlsx"))
 
 
 country_bboxes <- list(
