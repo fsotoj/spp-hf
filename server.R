@@ -259,28 +259,10 @@ server <- function(input, output, session) {
     )
   })
   
-  
-  output$chamber_selector_camera <- renderUI({
-    selectInput(
-      "chamber_sel_camera", "Chamber",
-      choices = c("Lower chamber" = 1, "Upper chamber" = 2),
-      selected = 1
-    )
-  })
+
   
   
-  # output$year_selector_camera <- renderUI({
-  #   shinyWidgets::sliderTextInput(
-  #     inputId  = "year_sel_camera", label = "Year",
-  #     choices  = as.character(seq(1983, 2024, 1)),
-  #     grid     = TRUE, width = "90%",
-  #     selected = 2019,
-  #     animate  = shiny::animationOptions(
-  #       interval = 1000,
-  #       loop = FALSE
-  #     )
-  #   )
-  # })
+
   
   # Year scoping helpers (camera)
   sled_years_scoped_camera <- reactive({
@@ -413,9 +395,16 @@ observeEvent(
     if (!is.null(input$state_sel_camera) && nzchar(input$state_sel_camera)) {
       df <- df[df$state_name == input$state_sel_camera, , drop = FALSE]
     }
-    if (!is.null(input$year_sel_camera) && nzchar(input$year_sel_camera)) {
-      df <- df[df$year == as.integer(input$year_sel_camera), , drop = FALSE]
-    }
+    
+    # --- CHANGE START: Commented out the Year filter ---
+    # We want to know if a chamber exists *at all* for this state, 
+    # regardless of the specific year selected.
+    
+    # if (!is.null(input$year_sel_camera) && nzchar(input$year_sel_camera)) {
+    #   df <- df[df$year == as.integer(input$year_sel_camera), , drop = FALSE]
+    # }
+    # --- CHANGE END ---
+
     ch <- sort(unique(suppressWarnings(as.integer(df$chamber_election_sub_leg))))
     ch <- ch[!is.na(ch) & ch %in% c(1L, 2L)]
     ch
@@ -427,13 +416,16 @@ observeEvent(
   }
   
   # Keep chamber selector in sync
+# Keep chamber selector in sync
   observeEvent(
-    list(current_tab(), input$country_sel_camera, input$state_sel_camera, input$year_sel_camera),
+    # --- CHANGE: Removed input$year_sel_camera from this list ---
+    list(current_tab(), input$country_sel_camera, input$state_sel_camera), 
     {
       req(current_tab() == "camera")
-      if (is.null(input$chamber_sel_camera)) return()
       
-      #shiny::invalidateLater(1, session)  # ← lets UI finish rebuilding first
+      # Note: We do NOT need to check input$year_sel_camera here anymore
+      
+      if (is.null(input$chamber_sel_camera)) return()
       
       ch <- available_chambers_camera()
       
@@ -449,6 +441,9 @@ observeEvent(
       choices_named <- .label_chambers(ch)
       
       old_sel <- suppressWarnings(as.integer(isolate(input$chamber_sel_camera)))
+      
+      # Logic: If the previously selected chamber exists in the new list (e.g., Lower), keep it.
+      # If not, default to the first available.
       new_sel <- if (length(old_sel) && !is.na(old_sel) && old_sel %in% ch) old_sel else ch[1]
       
       updateSelectInput(session, "chamber_sel_camera",

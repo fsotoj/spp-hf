@@ -91,7 +91,7 @@ NED <- read.xlsx(get_data("NED (v.0.1).xlsx")) %>%
 
 SEED <- read.xlsx(get_data("SEED SHINY (v.0.1).xlsx"))
 SED  <- read.xlsx(get_data("SED (v.0.1).xlsx"))
-SLED <- read.xlsx(get_data("SLED (v.0.1).xlsx"))
+SLED <- read.xlsx(get_data("SLED_plus_mex.xlsx"))
 SLED_ARG <- read.xlsx(get_data("SLED_ARG.xlsx"))
 SDI  <- read.xlsx(get_data("SDI (v.1).xlsx")) 
 
@@ -137,7 +137,7 @@ data <- left_join(NED,SED,c("country_name","country_code","year")) %>%
 geom <- st_read(get_data("geom_simple_maps.geojson"))
 
 party_colors     <- read.xlsx(get_data("party_colors.xlsx"))
-party_colors_leg <- read.xlsx(get_data("party_colors_leg_v2.xlsx"))
+party_colors_leg <- read.xlsx(get_data("party_colors_leg_v3.xlsx"))
 
 
 country_bboxes <- list(

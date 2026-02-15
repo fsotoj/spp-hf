@@ -89,8 +89,8 @@ ui <- dashboardPage(
       sidebarMenu(id = "tabs",
                   menuItem("About", tabName = "about", icon = icon("info-circle")),
                   menuItem("Mapping tool", tabName = "map_tab", icon = icon("map"),selected = TRUE),
-                  menuItem("Graphing tool", tabName = "graph_tab", icon = icon("chart-line")),
                   menuItem("Camera Viz tool", tabName = "camera", icon = icon("landmark")),
+                  menuItem("Graphing tool", tabName = "graph_tab", icon = icon("chart-line")),                  
                   menuItem("Codebook", tabName = "codebook", icon = icon("book-open")),
                   menuItem("Databases", tabName = "data_tab", icon = icon("table"))
 

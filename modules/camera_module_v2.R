@@ -76,7 +76,7 @@ hemicycle_layout <- function(N, layers = NULL, r_min = 0.4, r_max = 1) {
 expand_and_assign <- function(df_agg,
                               party_col = "party",
                               seats_col = "seats",
-                              non_contested_label = "NON-CONTESTED SEATS") {
+                              non_contested_label = "NOT AVAILABLE") {
   if (nrow(df_agg) == 0) return(tibble(party = character(), x = numeric(), y = numeric()))
   
   df_agg <- df_agg %>%
@@ -111,19 +111,6 @@ expand_and_assign <- function(df_agg,
     left_join(lay %>% select(pos, x, y), by = c("seat_index" = "pos")) %>%
     select(party, x, y, seat_index)
 }
-
-#-------------------------------
-# Distinct palette
-#-------------------------------
-# palette_distinct <- function(labels) {
-#   labs <- unique(as.character(labels))
-#   n <- length(labs)
-#   if (n == 0) return(character())
-#   hues <- seq(15, 375, length.out = n + 1)[-1]
-#   cols <- grDevices::hcl(h = hues, c = 100, l = 60)
-#   stats::setNames(cols, labs)
-# }
-
 
 
 
@@ -219,27 +206,41 @@ camaraLegendUI <- function(id) {
 
 
 camaraServer <- function(id,
-                         data,                          # standard data (ignored if Argentina)
+                         data,                           
                          state_r,   
                          country_sel_camera,
-                         chamber_r,                     # reactive: 1/2
-                         year_r,                        # reactive: year
+                         chamber_r,                      
+                         year_r,                         
                          party_col   = "party_name_sub_leg",
-                         seats_col   = "total_seats_party_sub_leg", # Standard name
+                         seats_col   = "total_seats_party_sub_leg", 
                          state_col   = "state_name",
                          chamber_filter_col = "chamber_election_sub_leg",
                          year_col    = "year",
-                         previous_name  = "NON-CONTESTED SEATS",
+                         previous_name  = "NOT AVAILABLE",
                          previous_color = "rgba(154,160,166,0.40)") {
   
   moduleServer(id, function(input, output, session) {
     
-    # --- Reactive data wrapper ---
+    # --- Helper: Empty Chart Style ---
+    # Defined here so it can be used by both renders safely
+    empty_chart <- function(msg) {
+      highcharter::highchart() %>% 
+        highcharter::hc_title(
+          text = msg,
+          align = "center",
+          verticalAlign = "middle",
+          style = list(color = "#999999", fontSize = "16px", fontWeight = "normal")
+        ) %>%
+        highcharter::hc_chart(backgroundColor = "transparent") %>%
+        highcharter::hc_xAxis(visible = FALSE) %>%
+        highcharter::hc_yAxis(visible = FALSE) %>%
+        highcharter::hc_legend(enabled = FALSE) %>%
+        highcharter::hc_credits(enabled = FALSE)
+    }
+
     data_r <- if (inherits(data, "reactive")) data else reactive(data)
     
-    # helper to get data based on mode
     get_filtered_data <- function() {
-
       sel_country <- tryCatch(country_sel_camera(), error = function(e) NULL)
       sel_states  <- tryCatch(state_r(), error = function(e) NULL)
       if (length(sel_states) == 1 && identical(sel_states, "")) sel_states <- NULL
@@ -247,29 +248,13 @@ camaraServer <- function(id,
       sel_year    <- suppressWarnings(as.integer(tryCatch(year_r(), error = function(e) NA_integer_)))
       sel_chamber <- suppressWarnings(as.integer(tryCatch(chamber_r(), error = function(e) NA_integer_)))
       
-      # ---------------------------------------------------------
-      # DATA LOGIC SELECTOR
-      # ---------------------------------------------------------
-      
-      # MODE 1: ARGENTINA (Compressed SLED_ARG format)
-      # We assume SLED_ARG exists in your global environment.
+      # MODE 1: ARGENTINA
       if (!is.null(sel_country) && "ARGENTINA" %in% toupper(sel_country) && exists("SLED_ARG")) {
-        
         dff <- SLED_ARG %>% 
-          # 1. Filter structural inputs first
-          dplyr::filter(
-            state_name %in% sel_states,
-            chamber_election_sub_leg == sel_chamber
-          ) %>%
-          # 2. TIME FILTER: Find rows active in this year (inclusive)
-          # This replaces the need to 'unnest' the whole dataset
-          dplyr::filter(
-            origin_year <= sel_year & expire_year > sel_year
-          ) %>%
-          # 3. Rename columns to match what the rest of the module expects
+          dplyr::filter(state_name %in% sel_states, chamber_election_sub_leg == sel_chamber) %>%
+          dplyr::filter(origin_year <= sel_year & expire_year > sel_year) %>%
           dplyr::mutate(
             total_seats_party_sub_leg = seats,
-            # We calculate total chamber size dynamically for the "Non-Contested" logic later
             total_chamber_seats_sub_leg = sum(seats, na.rm = TRUE)
           )
         dff[[state_col]]          <- as.character(dff[[state_col]])
@@ -277,33 +262,22 @@ camaraServer <- function(id,
         dff[[seats_col]]          <- suppressWarnings(as.integer(dff[[seats_col]]))
         dff[[year_col]]           <- suppressWarnings(as.integer(dff[[year_col]]))
         dff[[chamber_filter_col]] <- suppressWarnings(as.integer(dff[[chamber_filter_col]]))
-
-
-        
-        # Ensure we return the expected structure
         return(dff)
-        
       } else {
-        
-        # MODE 2: STANDARD (Pre-processed data)
+        # MODE 2: STANDARD
         df <- data_r()
-        
-        # Checks
         if (!inherits(df, c("data.frame","tbl","tbl_df"))) return(NULL)
         
-        # Type safety
         df[[state_col]]          <- as.character(df[[state_col]])
         df[[party_col]]          <- as.character(df[[party_col]])
         df[[seats_col]]          <- suppressWarnings(as.integer(df[[seats_col]]))
         df[[year_col]]           <- suppressWarnings(as.integer(df[[year_col]]))
         df[[chamber_filter_col]] <- suppressWarnings(as.integer(df[[chamber_filter_col]]))
         
-        dff <- df %>% dplyr::filter(.data[[seats_col]] != 0)
-        
+        dff <- df 
         if (!is.null(sel_states)) dff <- dff %>% dplyr::filter(.data[[state_col]] %in% sel_states)
         if (!is.na(sel_chamber))  dff <- dff %>% dplyr::filter(.data[[chamber_filter_col]] == sel_chamber)
         if (!is.na(sel_year))     dff <- dff %>% dplyr::filter(.data[[year_col]] == sel_year)
-        
         return(dff)
       }
     }
@@ -312,28 +286,41 @@ camaraServer <- function(id,
     # Chart
     #-------------------------------
     output$chart <- highcharter::renderHighchart({
-      req(state_r(), chamber_r(), year_r())
+      # --- CRITICAL FIX START ---
+      # Only require State and Year. 
+      # Do NOT strictly require chamber_r() here. If chamber is NULL (because the selector 
+      # was hidden/emptied), we want to proceed so we can render the "No Data" chart.
+      req(state_r(), year_r())
+      
+      # Manually check if chamber is valid
+      sel_chamber <- tryCatch(chamber_r(), error = function(e) NULL)
+      
+      # If chamber is missing, immediately return "No Data" instead of freezing
+      if (is.null(sel_chamber) || length(sel_chamber) == 0 || is.na(sel_chamber)) {
+        return(empty_chart("No data available"))
+      }
+      # --- CRITICAL FIX END ---
       
       dff <- get_filtered_data()
       
-      # --- ERROR HANDLING / EMPTY STATES ---
+      # 1. No data found (dataframe empty)
       if (is.null(dff) || nrow(dff) == 0) {
-        return(highcharter::highchart() %>% 
-                 highcharter::hc_title(text = "No data available") %>%
-                 highcharter::hc_series(list(data = list()))
-        ) 
+        return(empty_chart("No data available"))
       }
       
-      # --- AGGREGATION (Common to both modes) ---
-      # Sum seats per party (handles SLED_ARG overlaps automatically)
+      # 2. Data found, but total seats are ZERO
+      total_seats_sum <- sum(dff[[seats_col]], na.rm = TRUE)
+      if (total_seats_sum == 0) {
+        return(empty_chart("Seats per party not available"))
+      }
+      
+      # --- AGGREGATION ---
       agg_base <- dff %>%
+        dplyr::filter(.data[[seats_col]] > 0) %>%
         dplyr::transmute(party = .data[[party_col]], seats = .data[[seats_col]]) %>%
         dplyr::group_by(party) %>%
         dplyr::summarise(seats = sum(seats, na.rm = TRUE), .groups = "drop")
       
-      # --- REMAINING LOGIC (Identical to your original) ---
-      
-      # total chamber + NON-CONTESTED seats logic
       total_chamber_vec <- suppressWarnings(as.integer(na.omit(dff$total_chamber_seats_sub_leg)))
       total_chamber <- if (length(total_chamber_vec)) {
         tb <- sort(table(total_chamber_vec), decreasing = TRUE)
@@ -353,27 +340,20 @@ camaraServer <- function(id,
         dplyr::arrange(.is_prev, dplyr::desc(seats), party) %>%
         dplyr::select(-.is_prev)
       
-      # Expand seats
       pts <- expand_and_assign(agg, party_col = "party", seats_col = "seats", non_contested_label = previous_name)
       
-      if (nrow(pts) == 0) return(NULL) # Handle empty
+      if (nrow(pts) == 0) return(empty_chart("No seats to display")) 
       
       pts <- pts %>% dplyr::mutate(party = factor(party, levels = agg$party))
-      
-      # Palette
       pal <- palette_from_table(parties = levels(pts$party), color_table = party_colors_leg)
       if (previous_name %in% names(pal)) pal[previous_name] <- previous_color
       
-      # Add vote data for tooltips
-      # Note: SLED_ARG might not have 'total_votes_party_sub_leg'. 
-      # We check existence to prevent crash.
       if ("total_votes_party_sub_leg" %in% names(dff)) {
         vote_lookup <- dff %>%
           dplyr::group_by(.data[[party_col]]) %>%
           dplyr::summarise(total_votes = unique(.data$total_votes_party_sub_leg, na.rm = TRUE)) %>% 
           ungroup() %>% 
           mutate(total_votes = format(total_votes, big.mark = ",", scientific = FALSE))
-        
         pts <- pts %>% dplyr::left_join(vote_lookup, by = c("party" = party_col))
       } else {
         pts$total_votes <- "Not available"
@@ -382,11 +362,9 @@ camaraServer <- function(id,
       seat_lookup <- agg %>% dplyr::select(party, seats)
       pts <- pts %>% dplyr::left_join(seat_lookup, by = "party")
       
-      # dot sizes
       N <- nrow(pts)
       pt_size <- dplyr::case_when(N <= 30 ~ 26, N <= 50 ~ 22, N <= 100 ~ 14, N <= 150 ~ 12, TRUE ~ 7)
       
-      # Series List
       series_list <- pts %>%
         dplyr::group_split(party) %>%
         purrr::map(function(df_party) {
@@ -409,17 +387,14 @@ camaraServer <- function(id,
           )
         })
       
-      # JS Events (Your existing code)
+      # JS Events
       js_events <- highcharter::JS(sprintf("
         function() {
-
           var legendId = '%s-legend';
           var chartId  = '%s';
-
+          
           function getChart(){
-            return Highcharts.charts.find(function(c){
-              return c && c.renderTo && c.renderTo.id === chartId;
-            });
+            return Highcharts.charts.find(function(c){ return c && c.renderTo && c.renderTo.id === chartId; });
           }
 
           var locked = null;
@@ -428,19 +403,12 @@ camaraServer <- function(id,
           function bindLegendEvents(){
             if (isBinding) return;
             isBinding = true;
-
             var root = document.getElementById(legendId);
-            if(!root){
-              isBinding = false;
-              return;
-            }
+            if(!root){ isBinding = false; return; }
 
             function setInactive(name){
               var chart = getChart();
-              if(!chart) {
-                isBinding = false;
-                return;
-              }
+              if(!chart) { isBinding = false; return; }
               chart.series.forEach(function(s){
                 if(!s.visible) return;
                 if(s.name === name){
@@ -454,105 +422,64 @@ camaraServer <- function(id,
               root.querySelectorAll('[data-party]').forEach(function(el){
                 var st = el.getAttribute('data-party');
                 el.style.opacity = (st === name ? '1' : '0.4');
-                el.style.boxShadow = (st === name
-                  ? 'inset 0 0 0 1px #FFA92A'
-                  : 'inset 0 0 0 1px #E6E6E6');
+                el.style.boxShadow = (st === name ? 'inset 0 0 0 1px #FFA92A' : 'inset 0 0 0 1px #E6E6E6');
               });
             }
 
             function clearStates(){
               var chart = getChart();
-              if(!chart){
-                isBinding = false;
-                return;
-              }
-              chart.series.forEach(function(s){
-                if(!s.visible) return;
-                s.setState('normal');
-              });
+              if(!chart){ isBinding = false; return; }
+              chart.series.forEach(function(s){ if(!s.visible) return; s.setState('normal'); });
               root.querySelectorAll('[data-party]').forEach(function(el){
                 el.style.opacity = '1';
                 el.style.boxShadow = 'inset 0 0 0 1px #E6E6E6';
               });
             }
 
-            // Bind only once per element using a flag
             root.querySelectorAll('[data-party]').forEach(function(el){
-              if (el.dataset.bound === '1') return; // already has listeners
+              if (el.dataset.bound === '1') return;
               el.dataset.bound = '1';
-
               el.style.cursor = 'pointer';
-
-              el.addEventListener('mouseenter', function(){
-                if(locked) return;
-                setInactive(this.getAttribute('data-party'));
-              });
-
-              el.addEventListener('mouseleave', function(){
-                if(locked) return;
-                clearStates();
-              });
-
+              el.addEventListener('mouseenter', function(){ if(locked) return; setInactive(this.getAttribute('data-party')); });
+              el.addEventListener('mouseleave', function(){ if(locked) return; clearStates(); });
               el.addEventListener('click', function(){
                 var st = this.getAttribute('data-party');
-                if(locked === st){
-                  locked = null;
-                  clearStates();
-                } else {
-                  locked = st;
-                  setInactive(st);
-                }
+                if(locked === st){ locked = null; clearStates(); } else { locked = st; setInactive(st); }
               });
             });
-
             isBinding = false;
           }
 
-          // Initial bind
           bindLegendEvents();
-
-          // Watch for future changes (adding/removing parties)
           var legendRoot = document.getElementById(legendId);
           if(!legendRoot) return;
-
-          var obs = new MutationObserver(function(){
-            bindLegendEvents();
-          });
-
+          var obs = new MutationObserver(function(){ bindLegendEvents(); });
           obs.observe(legendRoot, { childList: true, subtree: true });
-
         }
-      ",
-                                           session$ns("chart"),
-                                           session$ns("chart")
-      ))
+      ", session$ns("chart"), session$ns("chart")))
       
-      # Render
-        highcharter::highchart() %>%
+      highcharter::highchart() %>%
         highcharter::hc_chart(
-            spacingBottom = 50,
-            type = "scatter",
-            events = list(
-              load = js_events, # Your existing legend code
-              # This triggers every time the year or selection changes
-              render = highcharter::JS("
+          spacingBottom = 50, type = "scatter",
+          events = list(
+            load = js_events,
+            render = highcharter::JS("
                 function() {
                   var chart = this;
                   chart.series.forEach(function(s) {
                     s.points.forEach(function(p) {
                       if (p.graphic) {
                         var el = p.graphic.element;
-                        // Restart the animation by removing and re-adding the class
                         el.classList.remove('flipped-dot');
-                        void el.offsetWidth; // Force browser reflow
+                        void el.offsetWidth; 
                         el.classList.add('flipped-dot');
                       }
                     });
                   });
                 }
               ")
-            )
-          ) %>%
+          )
+        ) %>%
         highcharter::hc_xAxis(visible = FALSE, min = -1.1, max = 1.1) %>%
         highcharter::hc_yAxis(visible = FALSE, min = 0, max = 1.1) %>%
         highcharter::hc_plotOptions(scatter = list(animation = list(duration = 0))) %>%
@@ -566,16 +493,16 @@ camaraServer <- function(id,
     #-------------------------------
     output$legend <- renderUI({
       req(state_r(), chamber_r(), year_r())
-      dff <- get_filtered_data() # Use the same logic helper
+      dff <- get_filtered_data() 
       if (is.null(dff) || nrow(dff) == 0) return(NULL)
+      if (sum(dff[[seats_col]], na.rm = TRUE) == 0) return(NULL)
       
-      # Aggregation for legend
       agg_base <- dff %>%
+        dplyr::filter(.data[[seats_col]] > 0) %>%
         dplyr::transmute(party = .data[[party_col]], seats = .data[[seats_col]]) %>%
         dplyr::group_by(party) %>%
         dplyr::summarise(seats = sum(seats, na.rm = TRUE), .groups = "drop")
       
-      # (Repeat logic for non-contested calculation for legend consistency...)
       total_chamber_vec <- suppressWarnings(as.integer(na.omit(dff$total_chamber_seats_sub_leg)))
       total_chamber <- if (length(total_chamber_vec)) {
         tb <- sort(table(total_chamber_vec), decreasing = TRUE)
@@ -616,7 +543,3 @@ camaraServer <- function(id,
     
   })
 }
-
-      
-      
-        
