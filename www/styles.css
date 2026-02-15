@@ -1382,120 +1382,94 @@ background-color: var(--purple) !important; color: #fff !important;
    23) MAP POPUP STYLING (DETAILS & ACTION BUTTON)
    ========================================================= */
 
-/* --- Card Container --- */
-.popup-card {
-  background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e0e0e0;
-  overflow: hidden; /* Important: keeps header corners rounded */
-  min-width: 260px;
-  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-}
 
-/* --- The Header (Grey Box at Top) --- */
+
+/* --- 3. CUSTOM HEADER & BODY --- */
 .popup-header {
-  background-color: #f8f9fa; /* Light grey background */
-  padding: 12px 16px;
+  background-color: #f8f9fa;
+  padding: 10px 14px;
   border-bottom: 1px solid #eee;
-  font-size: 14px;
-  font-weight: 700;
-  color: #2c3e50;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-/* --- The Content Body --- */
+.popup-header span:first-child {
+  font-weight: 700;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
 .popup-content {
-  padding: 16px; /* More breathing room */
-  font-size: 13px;
-  color: #444;
-  line-height: 1.6; /* Increases vertical spacing between lines */
+  padding: 12px 14px;
+  color: #333;
 }
 
-/* --- Key-Value Rows --- */
+/* --- 4. ROWS & DETAILS --- */
 .popup-row {
-  margin-bottom: 4px;
+  margin-bottom: 6px !important; 
+  display: block;
 }
 
-/* --- Collapsible Details (Cleaned up) --- */
 .popup-details {
-  margin-top: 12px;
+  margin-top: 10px;
   border-top: 1px solid #f0f0f0;
   padding-top: 8px;
 }
 
 .popup-details summary {
-  color: #007bff; /* Standard link color, nicer than magenta */
+  color: #007bff;
   font-weight: 600;
-  cursor: pointer;
-  list-style: none;
   font-size: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  cursor: pointer;
+  outline: none;
+  list-style: none; /* Hides default triangle */
 }
 
-.popup-details summary:hover {
-  text-decoration: underline;
-}
-
-/* Arrow */
+/* Optional: Custom arrow for details */
 .popup-details summary::after {
   content: '›';
-  font-size: 16px;
-  line-height: 1;
+  float: right;
+  font-weight: bold;
   transform: rotate(90deg);
   transition: transform 0.2s;
 }
-
 .popup-details[open] summary::after {
   transform: rotate(270deg);
 }
 
 .popup-details div {
-  margin-top: 6px;
+  margin-top: 4px;
   padding-left: 8px;
-  border-left: 2px solid #eee; /* Visual indicator for nested content */
+  border-left: 2px solid #eee;
+  color: #555;
 }
 
-/* --- Camera Action Button Container --- */
+/* --- 5. CAMERA BUTTON (Right Aligned) --- */
 .camera-link-container {
   margin-top: 12px;
-  text-align: right; /* Aligns the button to the right */
-  border-top: 1px solid #f0f0f0; /* Optional: separates button from details */
+  text-align: right !important;
+  border-top: 1px solid #f0f0f0;
   padding-top: 8px;
 }
 
-/* --- The Button Itself --- */
 .btn-camera-link {
-  display: inline-flex !important; /* Makes button only as wide as text */
+  display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  
-  /* OLD COLORS RESTORED */
-  background-color: var(--orange) !important; 
-  color: var(--text-dark) !important; /* Dark text on orange */
-  
-  padding: 6px 12px; /* Smaller padding */
-  border-radius: 6px;
+  background-color: #ff9800 !important; /* Orange */
+  color: #2c2c2c !important;
+  padding: 5px 12px;
+  border-radius: 4px;
   font-weight: 700;
-  font-size: 11px; /* Slightly smaller text */
+  font-size: 11px !important;
   text-decoration: none !important;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   transition: all 0.2s ease;
 }
 
-/* --- Hover Effect (Old Colors) --- */
-.btn-camera-link:hover,
-.btn-camera-link:focus {
-  background-color: var(--purple) !important; /* Purple on hover */
-  color: #fff !important; /* White text on hover */
-  box-shadow: 0 4px 8px rgba(114, 36, 100, 0.3);
+.btn-camera-link:hover {
+  background-color: #9c27b0 !important; /* Purple */
+  color: #fff !important;
   transform: translateY(-1px);
-}
-
-.btn-camera-link i {
-  margin-right: 5px;
 }
