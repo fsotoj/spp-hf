@@ -1382,81 +1382,120 @@ background-color: var(--purple) !important; color: #fff !important;
    23) MAP POPUP STYLING (DETAILS & ACTION BUTTON)
    ========================================================= */
 
-/* --- The Divider Line --- */
-.popup-divider {
-  border: 0;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(255,169,42,0), var(--orange), rgba(255,169,42,0));
-  margin: 4px 0 8px 0;
-  opacity: 0.6;
+/* --- Card Container --- */
+.popup-card {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+  overflow: hidden; /* Important: keeps header corners rounded */
+  min-width: 260px;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* --- Collapsible Details (Governor/Legislature) --- */
-.popup-details {
-  margin-top: 4px;
+/* --- The Header (Grey Box at Top) --- */
+.popup-header {
+  background-color: #f8f9fa; /* Light grey background */
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  font-weight: 700;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.popup-details summary {
-  color: var(--magenta) !important;
-  text-decoration: underline;
-  cursor: pointer;
-  display: inline-flex;
-  font-weight: 600;
+/* --- The Content Body --- */
+.popup-content {
+  padding: 16px; /* More breathing room */
   font-size: 13px;
-  list-style: none; /* Hides default triangle in some browsers */
+  color: #444;
+  line-height: 1.6; /* Increases vertical spacing between lines */
 }
 
-.popup-details[open] summary {
-  color: var(--purple) !important;
-  text-decoration: none;
-}
-
-/* Custom Arrow using ::before */
-.popup-details summary::before {
-  content: '▶';
-  float: right;
-  display: inline-block;
-  transition: transform 0.2s ease-in-out;
-  margin-left: 6px;
-  font-size: 10px;
-  margin-top: 3px;
-}
-
-.popup-details[open] summary::before {
-  transform: rotate(90deg);
-}
-
-/* --- The Camera Action Button --- */
-.camera-link-container {
-  text-align: center;
-  margin-top: 12px;
+/* --- Key-Value Rows --- */
+.popup-row {
   margin-bottom: 4px;
 }
 
+/* --- Collapsible Details (Cleaned up) --- */
+.popup-details {
+  margin-top: 12px;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 8px;
+}
+
+.popup-details summary {
+  color: #007bff; /* Standard link color, nicer than magenta */
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.popup-details summary:hover {
+  text-decoration: underline;
+}
+
+/* Arrow */
+.popup-details summary::after {
+  content: '›';
+  font-size: 16px;
+  line-height: 1;
+  transform: rotate(90deg);
+  transition: transform 0.2s;
+}
+
+.popup-details[open] summary::after {
+  transform: rotate(270deg);
+}
+
+.popup-details div {
+  margin-top: 6px;
+  padding-left: 8px;
+  border-left: 2px solid #eee; /* Visual indicator for nested content */
+}
+
+/* --- Camera Action Button Container --- */
+.camera-link-container {
+  margin-top: 12px;
+  text-align: right; /* Aligns the button to the right */
+  border-top: 1px solid #f0f0f0; /* Optional: separates button from details */
+  padding-top: 8px;
+}
+
+/* --- The Button Itself --- */
 .btn-camera-link {
-  display: inline-flex !important;
+  display: inline-flex !important; /* Makes button only as wide as text */
   align-items: center;
   justify-content: center;
-  background-color: var(--orange) !important;
-  color: var(--text-dark) !important;
-  padding: 6px 14px;
+  
+  /* OLD COLORS RESTORED */
+  background-color: var(--orange) !important; 
+  color: var(--text-dark) !important; /* Dark text on orange */
+  
+  padding: 6px 12px; /* Smaller padding */
   border-radius: 6px;
   font-weight: 700;
+  font-size: 11px; /* Slightly smaller text */
   text-decoration: none !important;
   box-shadow: 0 2px 5px rgba(0,0,0,0.15);
   transition: all 0.2s ease;
-  font-size: 13px;
 }
 
-/* Hover Effect */
+/* --- Hover Effect (Old Colors) --- */
 .btn-camera-link:hover,
 .btn-camera-link:focus {
-  background-color: var(--purple) !important;
-  color: #fff !important;
+  background-color: var(--purple) !important; /* Purple on hover */
+  color: #fff !important; /* White text on hover */
   box-shadow: 0 4px 8px rgba(114, 36, 100, 0.3);
   transform: translateY(-1px);
 }
 
 .btn-camera-link i {
-  margin-right: 6px;
+  margin-right: 5px;
 }

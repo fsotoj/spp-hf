@@ -1067,7 +1067,7 @@ observeEvent(input$switch_to_camera, {
   updateTabItems(session, "tabs", selected = "camera")
   
   # 3. CASCADE DELAYS
-  shinyjs::delay(300, {
+  shinyjs::delay(400, {
     updateSelectInput(session, "country_sel_camera", selected = target_country)
     
     shinyjs::delay(800, {
@@ -1089,7 +1089,7 @@ observeEvent(input$switch_to_camera, {
         }
         
         # 4. RELEASE AND HIDE (1.2s Cooldown)
-        shinyjs::delay(2000, {
+        shinyjs::delay(1500, {
           is_navigating(FALSE)
           shinyjs::hide("global-loader")
           print("LOG [Switch]: Navigation complete, loader hidden.")
