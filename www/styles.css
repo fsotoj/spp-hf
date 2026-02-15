@@ -1384,27 +1384,6 @@ background-color: var(--purple) !important; color: #fff !important;
 
 
 
-/* --- 3. CUSTOM HEADER & BODY --- */
-.popup-header {
-  background-color: #f8f9fa;
-  padding: 10px 14px;
-  border-bottom: 1px solid #eee;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.popup-header span:first-child {
-  font-weight: 700;
-  color: #2c3e50;
-  font-size: 14px;
-}
-
-.popup-content {
-  padding: 12px 14px;
-  color: #333;
-}
-
 /* --- 4. ROWS & DETAILS --- */
 .popup-row {
   margin-bottom: 6px !important; 
