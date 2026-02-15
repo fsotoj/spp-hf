@@ -1384,6 +1384,26 @@ background-color: var(--purple) !important; color: #fff !important;
 
 
 
+/* --- 3. CUSTOM HEADER & BODY --- */
+.popup-header {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--orange);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.popup-header span:first-child {
+  font-weight: 700;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+.popup-content {
+  padding: 8px 12px;
+  color: #333;
+}
+
 /* --- 4. ROWS & DETAILS --- */
 .popup-row {
   margin-bottom: 6px !important; 
@@ -1436,7 +1456,7 @@ background-color: var(--purple) !important; color: #fff !important;
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  background-color: #ff9800 !important; /* Orange */
+  background-color: var(--orange) !important; /* Orange */
   color: #2c2c2c !important;
   padding: 5px 12px;
   border-radius: 4px;
@@ -1448,7 +1468,7 @@ background-color: var(--purple) !important; color: #fff !important;
 }
 
 .btn-camera-link:hover {
-  background-color: #9c27b0 !important; /* Purple */
+  background-color: var(--purple) !important; /* Purple */
   color: #fff !important;
   transform: translateY(-1px);
 }
