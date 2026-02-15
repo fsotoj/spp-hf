@@ -39,7 +39,7 @@ RUN R -e "options(repos = c(CRAN = 'https://packagemanager.posit.co/cran/__linux
 
 # 5. Data Update (The "Cache Breaker")
 # To force a fresh data download, change the date below.
-# LAST DATA UPDATE: 2026-02-14
+# LAST DATA UPDATE: 2026-02-15
 COPY fx/update_data.R /home/shinyapp/fx/update_data.R
 RUN Rscript /home/shinyapp/fx/update_data.R
 
