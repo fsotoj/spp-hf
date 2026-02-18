@@ -542,6 +542,15 @@ mapModuleServer <- function(id, data_map, input_var_sel, dict, country_bboxes, i
         session$sendCustomMessage("addExportButton", list(mapId = paste0(id, "-map")))
       }, 0.0000001)
     })
+
+    observeEvent(input$map_shape_click, {
+      click <- input$map_shape_click
+      req(click$lat, click$lng)
+      
+      leafletProxy("map") %>%
+        # use input$map_zoom to maintain the current zoom level
+        flyTo(lng = click$lng, lat = click$lat, zoom = input$map_zoom) 
+    })
     
     
   })

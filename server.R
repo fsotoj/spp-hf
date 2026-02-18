@@ -660,6 +660,7 @@ observeEvent(input$btn_howto, {
 
   
 output$year_selector <- renderUI({
+    # We depend on structural changes (Country or Variable)
     req(current_tab() == "map_tab", input$country_sel, selected_vars_vector())
     
     # Static dataset
@@ -701,8 +702,9 @@ output$year_selector <- renderUI({
     # --- NEW SELECTION LOGIC ---
     choices_vec <- as.character(seq(y_min, y_max, by = 1))
     
-    # 1. Retrieve value from memory
-    target <- map_saved_year()
+    # 1. Retrieve value from memory WITH ISOLATE
+    # This breaks the re-rendering loop.
+    target <- isolate(map_saved_year())
     
     # 2. Check if the saved year exists in the new Country's range
     final_selected <- if (!is.null(target) && target %in% choices_vec) {
@@ -718,13 +720,10 @@ output$year_selector <- renderUI({
       choices  = choices_vec,
       grid     = TRUE,
       width    = "90%",
-      animate  = TRUE,
-      selected = final_selected # Use the calculated year
+      animate  = shiny::animationOptions(interval = 1500, loop = FALSE), # Added proper animation options
+      selected = final_selected 
     )
   })
-  
-  
-  
   
   # ==== 5) SHOW / HIDE CONTROLS BY TAB ======================================
   # “No data” visibility (map)
