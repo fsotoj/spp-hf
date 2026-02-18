@@ -151,6 +151,16 @@ ui <- dashboardPage(
       tags$link(rel = "icon", type = "image/svg+xml", href = "spp_logo_tab_v2.svg")
     ),
     tags$head(
+
+      # --- keep session alive ---
+      tags$script(HTML("
+        setInterval(function() {
+          Shiny.setInputValue('keep_alive', Date.now());
+        }, 60000); // every 60 seconds
+      ")),
+      
+
+
       # --- HOW TO TRIGGER---
       tags$script(HTML("
         $(document).on('click', '#btn_howto', function(e) {
