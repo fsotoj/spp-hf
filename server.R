@@ -1066,13 +1066,13 @@ observeEvent(input$switch_to_camera, {
   updateTabItems(session, "tabs", selected = "camera")
   
   # 3. CASCADE DELAYS
-  shinyjs::delay(400, {
+  shinyjs::delay(500, {
     updateSelectInput(session, "country_sel_camera", selected = target_country)
     
-    shinyjs::delay(800, {
+    shinyjs::delay(900, {
       updateSelectInput(session, "state_sel_camera", selected = target_state)
       
-      shinyjs::delay(1000, {
+      shinyjs::delay(1300, {
         yrs <- sled_years_scoped_camera()
         yrs_num <- as.integer(yrs)
         

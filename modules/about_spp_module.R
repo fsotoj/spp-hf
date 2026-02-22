@@ -1,4 +1,3 @@
-
 sppAboutModuleUI <- function(id,
                              title = "Subnational Politics Project",
                              max_width = 900,
@@ -9,6 +8,16 @@ sppAboutModuleUI <- function(id,
   # helper: TRUE if section should start open
   open_attr <- function(key, open_sections) if (key %in% open_sections) "open" else NULL
   
+  # 1) Data list for the team members (Translated from React SppPeople.js)
+  people_data <- list(
+    list(name = "Agustina Giraudy", role = "Principal Investigator", linkedin = "https://www.linkedin.com/in/agustina-giraudy-72a3b81a9/", site = "https://agustinagiraudy.com/", org = "American University<br/>Tecnológico de Monterrey", img = "docs/agustina.webp", color = "#FFA92A"),
+    list(name = "Francisco Urdinez", role = "Collaborator", linkedin = "https://www.linkedin.com/in/francisco-urdinez-a8061813/", site = "https://www.furdinez.com/", org = "Universidad Católica de Chile", img = "docs/francisco.webp", color = "#722464"),
+    list(name = "Guadalupe González", role = "Collaborator", linkedin = "https://www.linkedin.com/in/guadag12/", site = "https://guadagonzalez.com/", org = "University of Maryland", img = "docs/guadalupe.webp", color = "#722464"),
+    list(name = "Felipe Soto Jorquera", role = "Collaborator", linkedin = "https://www.linkedin.com/in/felipesotojorquera/", site = NULL, org = "Hertie School, Berlin", img = "docs/felipe.webp", color = "#722464"),
+    list(name = "Magdalena Nieto", role = "Collaborator", linkedin = "https://www.linkedin.com/in/magdalenanieto/", site = NULL, org = "Universidad de Buenos Aires", img = "docs/magdalena.webp", color = "#722464"),
+    list(name = "Sergio Huertas Hernández", role = "Research Assistant", linkedin = "https://www.linkedin.com/in/sergio-huertas-hern%C3%A1ndez/", site = "https://serhuertas.github.io/", org = "Universidad Católica de Chile", img = "docs/sergio.webp", color = "#444447")
+  )
+
   style_css <- paste0(
     "/* Palette via CSS variables from styles.css (fallbacks included) */\n",
     "#", root_id, " { background:#fff; color:var(--gray, #4D4D4D); font-family: Helvetica, Arial, sans-serif; padding:24px 16px 24px; }\n",
@@ -31,32 +40,40 @@ sppAboutModuleUI <- function(id,
     "#", root_id, " .spp-link { color:var(--magenta, #E5007D); text-decoration:none; }\n",
     "#", root_id, " .spp-link:hover { text-decoration:underline; }\n",
     
-    "/* People grid & cards */\n",
-    "#", root_id, " .team-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:20px; text-align:center; }\n",
-    "#", root_id, " .team-card { background:#fff; border:1px solid #e6e6e6; border-radius:12px; padding:16px; position:relative; overflow:visible; transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease; }\n",
-    "#", root_id, " .team-card:hover { transform: translateY(-4px); box-shadow: 0 10px 22px rgba(0,0,0,0.18); border-color: rgba(255,169,42,0.45); }\n",
-    "#", root_id, " .team-avatar { width:120px; height:120px; object-fit:cover; border-radius:50%; margin-bottom:12px; border:2px solid rgba(255,169,42,0.6); filter:grayscale(100%); transition:filter .3s ease; }\n",
-    "#", root_id, " .team-avatar:hover { filter:grayscale(0%); }\n",
-    "#", root_id, " .collab-name { color:var(--gray, #4D4D4D); font-weight:700; margin:0 0 6px 0; }\n",
-    "#", root_id, " .badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700; vertical-align:middle; margin-right:6px; }\n",
-    "#", root_id, " .badge-pi { background:var(--orange, #FFA92A); color:#111; }\n",
-    "#", root_id, " .badge-collab { background:rgba(114,36,100,0.12); color:var(--purple, #722464); border:1px solid rgba(114,36,100,0.35); }\n",
-    "#", root_id, " .badge-r_assist { background:rgba(33,150,243,0.12); color:#1565C0; border:1px solid rgba(33,150,243,0.35); }\n",
-    "#", root_id, " .lnk-btn { display:inline-block; width:20px; height:20px; line-height:20px; text-align:center; border-radius:50%; background:#0A66C2; color:#fff; text-decoration:none; font-weight:700; font-family:Arial, Helvetica, sans-serif; font-size:11px; transition:filter .15s ease; vertical-align:middle; }\n",
-    "#", root_id, " .lnk-btn:hover { filter:brightness(1.15); }\n",
+    "/* SPP People Grid */\n",
+    "#", root_id, " .spp-people-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; justify-items: center; padding: 10px 0; width: 100%; }\n",
+    "#", root_id, " .spp-property-card { height: 19em; width: 100%; max-width: 14em; display: flex; flex-direction: column; position: relative; transition: all 0.4s cubic-bezier(0.645, 0.045, 0.355, 1); border-radius: 16px; overflow: hidden; background: #fff; box-shadow: 15px 15px 27px #e1e1e3, -15px -15px 27px #ffffff; }\n",
+    "#", root_id, " .spp-property-image { height: 10em; width: 100%; position: absolute; top: 0; transition: all 0.4s cubic-bezier(0.645, 0.045, 0.355, 1); background-size: cover; background-position: center top; background-repeat: no-repeat; z-index: 2; }\n",    "#", root_id, " .spp-image-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 60%); opacity: 0; transition: opacity 0.4s ease; }\n",
+    "#", root_id, " .spp-image-footer { position: absolute; bottom: 0.8em; left: 0.8em; right: 0.8em; display: flex; flex-direction: column; gap: 8px; z-index: 3; }\n",
+    "#", root_id, " .spp-image-name { opacity: 0; transform: translateY(5px); transition: all 0.4s ease 0.1s; color: white; font-weight: 800; font-size: 0.95rem; line-height: 1.1; }\n",
+    "#", root_id, " .spp-property-description { background-color: #FAFAFC; height: 9em; width: 100%; position: absolute; bottom: 0; transition: all 0.4s cubic-bezier(0.645, 0.045, 0.355, 1); padding: 1.2em 0.6em; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 1; }\n",
+    "#", root_id, " .spp-role-badge { font-size: 8px; text-transform: uppercase; font-weight: 800; color: white; padding: 3px 8px; border-radius: 4px; }\n",
+    "#", root_id, " .spp-person-name { margin: 0; font-size: 0.9rem; font-weight: 700; color: #1a1a1b; }\n",
+    "#", root_id, " .spp-person-org { font-size: 10px; color: #666; line-height: 1.3; }\n",
+    "#", root_id, " .spp-property-social-icons { display: flex; flex-direction: row; gap: 6px; align-items: center; }\n",
+    "#", root_id, " .spp-social-btn { width: 24px; height: 24px; background-color: #000; color: white; display: flex; align-items: center; justify-content: center; border-radius: 5px; text-decoration: none; font-size: 11px; transition: all 0.4s cubic-bezier(0.645, 0.045, 0.355, 1); overflow: hidden; white-space: nowrap; }\n",
+    "#", root_id, " .spp-btn-text { max-width: 0; opacity: 0; margin-left: 0; font-weight: 700; font-size: 10px; transition: all 0.4s ease; }\n",
     
+    "/* Hover Transitions */\n",
+    "#", root_id, " .spp-property-card:hover .spp-property-description { height: 0em; opacity: 0; }\n",
+    "#", root_id, " .spp-property-card:hover .spp-property-image { height: 19em; }\n",
+    "#", root_id, " .spp-property-card:hover .spp-image-overlay { opacity: 1; }\n",
+    "#", root_id, " .spp-property-card:hover .spp-image-name { opacity: 1; transform: translateY(0); }\n",
+    "#", root_id, " .spp-property-card:hover .spp-social-btn { width: 78px; background-color: white; color: black; padding: 0 6px; }\n",
+    "#", root_id, " .spp-property-card:hover .spp-btn-text { max-width: 50px; opacity: 1; margin-left: 5px; }\n",
+    "#", root_id, " .spp-social-btn.li:hover { background-color: #0A66C2 !important; color: white !important; }\n",
+    "#", root_id, " .spp-social-btn.web:hover { background-color: #FFA92A !important; color: white !important; }\n",
+    
+    "@media (max-width: 1150px) { #", root_id, " .spp-people-grid { grid-template-columns: repeat(3, 1fr); } }\n",
+    "@media (max-width: 768px) { #", root_id, " .spp-people-grid { grid-template-columns: repeat(2, 1fr); } }\n",
+    "@media (max-width: 500px) { #", root_id, " .spp-people-grid { grid-template-columns: 1fr; } }\n",
+
     "/* Figures */\n",
     "#", root_id, " .figure { margin:10px 0 12px 0; text-align:center; }\n",
     "#", root_id, " .figure img { max-width:100%; height:auto; border-radius:12px; border:1px solid #eee; }\n",
     "#", root_id, " .caption { font-size:0.92rem; color:var(--gray, #4D4D4D); margin-top:6px; }\n",
     "#", root_id, " ol.vars { margin:10px 0 0 18px; }\n",
-    "#", root_id, " ol.vars li { margin:6px 0; }\n",
-    
-    "/* Avatar tooltip (scoped) */\n",
-    "#", root_id, " .avatar-link { position:relative; display:inline-block; }\n",
-    "#", root_id, " .tooltip-text { visibility:hidden; min-width: 110px; background-color:var(--orange, #FFA92A); color:#111; text-align:center; border-radius:6px; padding:4px 8px; position:absolute; z-index:9999; bottom: calc(100% + 8px); left:50%; transform: translateX(-50%); opacity:0; transition:opacity 0.25s ease; font-size:12px; box-shadow:0 4px 8px rgba(0,0,0,0.15); }\n",
-    "#", root_id, " .tooltip-text::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border-width:6px; border-style:solid; border-color:var(--orange, #FFA92A) transparent transparent transparent; }\n",
-    "#", root_id, " .avatar-link:hover .tooltip-text { visibility:visible; opacity:1; }\n"
+    "#", root_id, " ol.vars li { margin:6px 0; }\n"
   )
   
   tagList(
@@ -70,7 +87,7 @@ sppAboutModuleUI <- function(id,
         # 1) About SPP -----------------------------------------------------------
         tags$details(
           class = "card",
-          open  = open_attr("about", open_sections),   # <- sticks reliably
+          open  = open_attr("about", open_sections),
           tags$summary(
             tags$span(class = "card-title", "About SPP"),
             icon("chevron-down", class = "chev")
@@ -97,10 +114,10 @@ sppAboutModuleUI <- function(id,
           )
         ),
         
-        # 3) People Behind SPP ---------------------------------------------------
+        # 2) People Behind SPP (React Integration) -------------------------------
         tags$details(
           class = "card",
-          open  = open_attr("people", open_sections),   # <- sticks reliably
+          open  = open_attr("people", open_sections),
           tags$summary(
             tags$span(class = "card-title", "People Behind SPP"),
             icon("chevron-down", class = "chev")
@@ -108,113 +125,55 @@ sppAboutModuleUI <- function(id,
           tags$div(
             class = "card-body",
             tags$div(
-              class = "team-grid",
-              
-              # Agustina
-              tags$div(
-                class = "team-card",
-                tags$a(
-                  href   = "https://agustinagiraudy.com",
-                  target = "_blank",
-                  class  = "avatar-link",
-                  tags$img(src = "docs/agustina.webp", alt = "Agustina Giraudy", class = "team-avatar"),
-                  tags$span(class = "tooltip-text", "Go to my webpage")
-                ),
-                tags$p(class = "collab-name", "Agustina Giraudy"),
+              class = "spp-people-grid",
+              # Iterate over the people_data list
+              lapply(people_data, function(p) {
                 tags$div(
-                  tags$span(class = "badge badge-pi", "Principal Investigator"),
-                  tags$a(href = "https://www.linkedin.com/in/agustina-giraudy-72a3b81a9/", target = "_blank", class = "lnk-btn", "in")
-                ),
-                tags$p(class = "pi-affil", "American University / Tecnológico de Monterrey")
-              ),
-              
-              # Francisco
-              tags$div(
-                class = "team-card",
-                tags$a(
-                  href   = "https://www.furdinez.com/",
-                  target = "_blank",
-                  class  = "avatar-link",
-                  tags$img(src = "docs/francisco.webp", alt = "Francisco Urdinez", class = "team-avatar"),
-                  tags$span(class = "tooltip-text", "Go to my webpage")
-                ),
-                tags$p(class = "collab-name", "Francisco Urdinez"),
-                tags$div(
-                  tags$span(class = "badge badge-collab", "Collaborator"),
-                  tags$a(href = "https://www.linkedin.com/in/francisco-urdinez-a8061813/", target = "_blank", class = "lnk-btn", "in")
-                ),
-                tags$p(class = "pi-affil", "Universidad Católica de Chile")
-              ),
-              
-              
-              # Guadalupe
-              tags$div(
-                class = "team-card",
-                tags$a(
-                  href   = "https://guadagonzalez.com/",
-                  target = "_blank",
-                  class  = "avatar-link",
-                  tags$img(src = "docs/guadalupe.webp", alt = "Guadalupe González", class = "team-avatar"),
-                  tags$span(class = "tooltip-text", "Go to my webpage")
-                ),
-                tags$p(class = "collab-name", "Guadalupe González"),
-                tags$div(
-                  tags$span(class = "badge badge-collab", "Collaborator"),
-                  tags$a(href = "https://www.linkedin.com/in/guadag12/", target = "_blank", class = "lnk-btn", "in")
-                ),
-                tags$p(class = "pi-affil", "University of Maryland, College Park")
-              ),
-              
-              # Felipe (tooltip but no external link)
-              tags$div(
-                class = "team-card",
-                tags$span(
-                  class  = "avatar-link",
-                  tags$img(src = "docs/felipe.webp", alt = "Felipe Soto Jorquera", class = "team-avatar"),
-                  tags$span(class = "tooltip-text", "Go to my webpage")
-                ),
-                tags$p(class = "collab-name", "Felipe Soto Jorquera"),
-                tags$div(
-                  tags$span(class = "badge badge-collab", "Collaborator"),
-                  tags$a(href = "https://www.linkedin.com/in/felipesotojorquera/", target = "_blank", class = "lnk-btn", "in")
-                ),
-                tags$p(class = "pi-affil", "Hertie School, Berlin")
-              ),
-              
-              # Sergio
-              tags$div(
-                class = "team-card",
-                tags$a(
-                  href   = "https://serhuertas.github.io/",
-                  target = "_blank",
-                  class  = "avatar-link",
-                  tags$img(src = "docs/sergio.webp", alt = "Sergio Huertas Hernández", class = "team-avatar"),
-                  tags$span(class = "tooltip-text", "Go to my webpage")
-                ),
-                tags$p(class = "collab-name", "Sergio Huertas Hernández"),
-                tags$div(
-                  tags$span(class = "badge badge-r_assist", "Research Assistant"),
-                  tags$a(href = "https://www.linkedin.com/in/sergio-huertas-hern%C3%A1ndez/", target = "_blank", class = "lnk-btn", "in")
-                ),
-                tags$p(class = "pi-affil", "Universidad Católica de Chile")
-              ),
-              
-              
+                  class = "spp-property-card",
+                  tags$div(
+                    class = "spp-property-image",
+                    style = paste0("background-image: url('", p$img, "');"),
+                    tags$div(class = "spp-image-overlay"),
+                    tags$div(
+                      class = "spp-image-footer",
+                      tags$div(class = "spp-image-name", p$name),
+                      tags$div(
+                        class = "spp-property-social-icons",
+                        if (!is.null(p$linkedin)) {
+                          tags$a(href = p$linkedin, target = "_blank", rel = "noreferrer", class = "spp-social-btn li",
+                                 tags$i(class = "fab fa-linkedin-in"),
+                                 tags$span(class = "spp-btn-text", "LinkedIn"))
+                        },
+                        if (!is.null(p$site)) {
+                          tags$a(href = p$site, target = "_blank", rel = "noreferrer", class = "spp-social-btn web",
+                                 tags$i(class = "fas fa-globe"),
+                                 tags$span(class = "spp-btn-text", "Website"))
+                        }
+                      )
+                    )
+                  ),
+                  tags$div(
+                    class = "spp-property-description",
+                    tags$span(class = "spp-role-badge", style = paste0("background-color: ", p$color, ";"), p$role),
+                    tags$h5(class = "spp-person-name", p$name),
+                    tags$p(class = "spp-person-org", HTML(p$org))
+                  )
+                )
+              })
             )
           )
         ),
         
-        # 4) About Databases -----------------------------------------------------
+        # 3) About Databases -----------------------------------------------------
         tags$details(
           class = "card",
-          open  = open_attr("databases", open_sections),   # <- sticks reliably
+          open  = open_attr("databases", open_sections),
           tags$summary(
             tags$span(class = "card-title", "About SPP Databases"),
             icon("chevron-down", class = "chev")
           ),
           tags$div(
             class = "card-body",
-            # Section A: Databases’ Structure
             tags$p(class = "spp-text", tags$strong("Databases’ Structure")),
             tags$p(
               class = "spp-text",
@@ -223,12 +182,9 @@ sppAboutModuleUI <- function(id,
             tags$div(
               class = "figure",
               tags$img(src = "databases_spp.svg", alt = "Figure 1. SPP Databases")
-              # ,
-              # tags$div(class = "caption", "Figure 1. Databases that comprise the Subnational Politics Project (SPP).")
             ),
             tags$hr(class = "spp-hr"),
             
-            # Section B: Variable Information
             tags$p(class = "spp-text", tags$strong("Variable Information")),
             tags$p(
               class = "spp-text",
@@ -244,14 +200,11 @@ sppAboutModuleUI <- function(id,
             tags$div(
               class = "figure",
               tags$img(src = "variables_database.svg", alt = "Figure 2. Variable Types in SPP")
-              # ,
-              # tags$div(class = "caption", "Figure 2. Variable types in the SPP databases.")
             )
-            
           )
         ),
         
-        # 2) References ----------------------------------------------------------
+        # 4) References ----------------------------------------------------------
         tags$details(
           class = "card",
           open  = open_attr("refs", open_sections),
@@ -261,8 +214,6 @@ sppAboutModuleUI <- function(id,
           ),
           tags$div(
             class = "card-body",
-            
-            # Codebook citation first
             tags$p(class="ref", tags$strong("Suggested Citation for Codebook")),
             tags$p(
               class="ref",
@@ -275,10 +226,7 @@ sppAboutModuleUI <- function(id,
                 "https://doi.org/10.17605/OSF.IO/H96FD"
               )
             ),
-            
             tags$hr(class="spp-hr"),
-            
-            # Table of database citations
             tags$table(
               style = "width:100%; border-collapse:collapse; font-size:12px;",
               tags$thead(
@@ -329,7 +277,6 @@ sppAboutModuleUI <- function(id,
             )
           )
         )
-        
       )
     )
   )
