@@ -211,6 +211,7 @@ camaraServer <- function(id,
                          country_sel_camera,
                          chamber_r,                      
                          year_r,                         
+                         show_votes  = FALSE,
                          party_col   = "party_name_sub_leg",
                          seats_col   = "total_seats_party_sub_leg", 
                          state_col   = "state_name",
@@ -348,15 +349,17 @@ camaraServer <- function(id,
       pal <- palette_from_table(parties = levels(pts$party), color_table = party_colors_leg)
       if (previous_name %in% names(pal)) pal[previous_name] <- previous_color
       
-      if ("total_votes_party_sub_leg" %in% names(dff)) {
+      if (show_votes && "total_votes_party_sub_leg" %in% names(dff)) {
         vote_lookup <- dff %>%
           dplyr::group_by(.data[[party_col]]) %>%
           dplyr::summarise(total_votes = unique(.data$total_votes_party_sub_leg, na.rm = TRUE)) %>% 
           ungroup() %>% 
           mutate(total_votes = format(total_votes, big.mark = ",", scientific = FALSE))
         pts <- pts %>% dplyr::left_join(vote_lookup, by = c("party" = party_col))
-      } else {
+      } else if (show_votes) {
         pts$total_votes <- "Not available"
+      } else {
+        pts$total_votes <- NA_character_
       }
       
       seat_lookup <- agg %>% dplyr::select(party, seats)
@@ -485,7 +488,11 @@ camaraServer <- function(id,
         highcharter::hc_plotOptions(scatter = list(animation = list(duration = 0))) %>%
         highcharter::hc_legend(enabled = FALSE) %>%
         highcharter::hc_add_series_list(series_list) %>% 
-        highcharter::hc_tooltip(useHTML = TRUE, headerFormat = "", pointFormat = paste0("<b>{point.name}</b><br>Votes: {point.votes}<br>Seats: {point.seats}"))
+        highcharter::hc_tooltip(useHTML = TRUE, headerFormat = "", pointFormat = paste0(
+          "<b>{point.name}</b><br>",
+          if (show_votes) "Votes: {point.votes}<br>" else "",
+          "Seats: {point.seats}"
+        ))
     })
     
     #-------------------------------
