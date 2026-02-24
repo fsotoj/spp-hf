@@ -226,36 +226,75 @@ server <- function(input, output, session) {
   # ==== 1.3) CAMERA TAB SELECTORS (SLED-driven) ==============================
   # UI renderers (camera-only)
   output$country_selector_camera <- renderUI({
+    # Get all available countries
+    choices <- sort(unique(SLED$country_name))
+
+    # 1. Check if we are Navigating (Priority 1)
+    if (isTRUE(is_navigating()) && !is.null(input$switch_to_camera$country)) {
+      sel <- input$switch_to_camera$country
+
+    } else {
+      # 2. If NOT navigating, try to keep the CURRENT selection (Priority 2)
+      # We use isolate() to peek at the value without triggering a re-render loop
+      current_val <- isolate(input$country_sel_camera)
+
+      if (!is.null(current_val) && current_val %in% choices) {
+        sel <- current_val
+      } else {
+        # 3. Fallback to default (Priority 3)
+        sel <- "BRAZIL"
+      }
+    }
+
     selectInput(
       "country_sel_camera", "Country",
-      choices  = sort(unique(SLED$country_name)),
-      selected = "BRAZIL"
+      choices  = choices,
+      selected = sel
     )
   })
-  
+    
   output$state_selector_camera <- renderUI({
     req(input$country_sel_camera)
     
-    # Get original values (what you want returned)
+    # Get choices for the current country
     choices_vals <- SLED |>
       dplyr::filter(country_name == input$country_sel_camera) |>
       dplyr::pull(state_name) |>
       unique() |>
       sort()
     
-    # Build labels (what you want displayed)
+    # Create labels
     choices_labs <- stringr::str_to_title(choices_vals)
-    
-    # Name the vector: names = labels, values = originals
     names(choices_vals) <- choices_labs
+    
+    # LOGIC TO DETERMINE SELECTION
+    if (isTRUE(is_navigating()) && !is.null(input$switch_to_camera$state)) {
+      # Case A: Navigating -> Use the target state
+      sel <- input$switch_to_camera$state
+      
+    } else {
+      # Case B: Standard interaction
+      # First, check if there is ALREADY a valid selection in the box
+      current_val <- isolate(input$state_sel_camera)
+      
+      if (!is.null(current_val) && current_val %in% choices_vals) {
+        # Keep the current state (this preserves the state set during navigation)
+        sel <- current_val
+      } else {
+        # Fallback to default (18th state) only if nothing valid is selected
+        sel <- if (length(choices_vals)) {
+          choices_vals[[min(18, length(choices_vals))]]
+        } else {
+          NULL
+        }
+      }
+    }
     
     selectInput(
       inputId  = "state_sel_camera",
       label    = "State",
-      choices  = choices_vals,                 # shows Title Case, returns originals
-      selected = if (length(choices_vals))
-        choices_vals[[min(18, length(choices_vals))]]
-      else NULL
+      choices  = choices_vals,                 
+      selected = sel
     )
   })
   
@@ -290,91 +329,111 @@ server <- function(input, output, session) {
 
   target_camera_year <- reactiveVal(NULL)
 
-output$year_selector_camera_ui <- renderUI({
-  req(current_tab() == "camera")
-  
-  # 1. Get available years (This SHOULD stay reactive, so it updates on Country change)
-  yrs <- sled_years_scoped_camera()
-  req(length(yrs) > 0)
-  
-  yrs_num <- sort(as.integer(yrs))
-  yrs_chr <- as.character(yrs_num)
-  
-  # 2. Determine selection
-  # We use isolate() here so the slider doesn't kill itself when it moves
-  current_val <- isolate(input$year_sel_camera)
-  
-  # --- LOGIC TO PICK THE SELECTED YEAR ---
-  # A. Is there a Map Navigation Flag pending?
-  if (isTRUE(is_navigating()) && !is.null(input$switch_to_camera$year)) {
-     target <- as.character(input$switch_to_camera$year)
-     # Validate target exists
-     if (target %in% yrs_chr) {
-       sel <- target
-     } else {
-        # Nearest Lower Logic for Flag
-        t_int <- as.integer(target)
-        lower <- yrs_num[yrs_num <= t_int]
-        sel <- if(length(lower)>0) as.character(max(lower)) else tail(yrs_chr, 1)
-     }
-     
-  } else {
-    # B. Standard Behavior (User is just clicking around)
-    if (!is.null(current_val) && current_val %in% yrs_chr) {
-      sel <- current_val
-    } else {
-      sel <- tail(yrs_chr, 1) # Default to last year
-    }
-  }
-
-  # 3. Build the Slider
-  shinyWidgets::sliderTextInput(
-    inputId  = "year_sel_camera", 
-    label    = "Year",
-    choices  = yrs_chr,
-    selected = sel,
-    grid     = TRUE, 
-    width    = "100%",
-    # Ensure animation options are set
-    animate  = shiny::animationOptions(interval = 1500, loop = FALSE) 
-  )
-})
-
-  
-  
-# Keep year slider in sync (camera)
-observeEvent(
-  list(current_tab(), input$country_sel_camera, input$state_sel_camera, input$chamber_sel_camera),
-  {
+  output$year_selector_camera_ui <- renderUI({
     req(current_tab() == "camera")
-    # Strictly ignore if navigating or if the slider is temporarily empty
-    if (is_navigating() || is.null(input$year_sel_camera)) return()
-
+    
+    # 1. Get available years (This SHOULD stay reactive)
     yrs <- sled_years_scoped_camera()
-    if (length(yrs) == 0) return()
+    req(length(yrs) > 0)
     
     yrs_num <- sort(as.integer(yrs))
     yrs_chr <- as.character(yrs_num)
-    current_val <- input$year_sel_camera
     
-    # Calculate target (Nearest Lower)
-    target_int <- as.integer(current_val)
-    if (current_val %in% yrs_chr) {
-      selected_year <- current_val
-    } else if (!is.na(target_int)) {
-      lower_years <- yrs_num[yrs_num <= target_int]
-      selected_year <- if (length(lower_years) > 0) as.character(max(lower_years)) else yrs_chr[1]
+    # 2. Determine selection
+    # We use isolate() to stop the slider from reacting to itself
+    current_val <- isolate(input$year_sel_camera)
+    
+    # --- LOGIC SELECTION ---
+    if (isTRUE(is_navigating()) && !is.null(input$switch_to_camera$year)) {
+      # CASE A: Navigating -> Force the target year
+      target <- as.character(input$switch_to_camera$year)
+      if (target %in% yrs_chr) {
+        sel <- target
+      } else {
+          # Nearest Lower Logic for Flag
+          t_int <- as.integer(target)
+          lower <- yrs_num[yrs_num <= t_int]
+          sel <- if(length(lower)>0) as.character(max(lower)) else tail(yrs_chr, 1)
+      }
+      
     } else {
-      selected_year <- tail(yrs_chr, 1)
+      # CASE B: Standard / Navigation Finished
+      # We MUST check if there is a currently selected value (even if is_navigating is FALSE now)
+      # This prevents resetting to the last year when the loader finishes.
+      if (!is.null(current_val) && current_val %in% yrs_chr) {
+        sel <- current_val
+      } else {
+        sel <- tail(yrs_chr, 1) # Default to last year
+      }
     }
-    
-    # Only update if there is a genuine change to prevent cycles
-    if (!identical(as.character(selected_year), as.character(current_val))) {
-       shinyWidgets::updateSliderTextInput(session, "year_sel_camera", choices = yrs_chr, selected = selected_year)
-    }
-  },
-  ignoreInit = TRUE
-)
+
+    # 3. Build the Slider
+    shinyWidgets::sliderTextInput(
+      inputId  = "year_sel_camera", 
+      label    = "Year",
+      choices  = yrs_chr,
+      selected = sel,
+      grid     = TRUE, 
+      width    = "100%",
+      animate  = shiny::animationOptions(interval = 1500, loop = FALSE) 
+    )
+  })
+
+  
+  
+
+  # Keep chamber selector in sync
+  observeEvent(
+    list(current_tab(), input$country_sel_camera, input$state_sel_camera), 
+    {
+      req(current_tab() == "camera")
+      
+      # 1. Setup
+      if (is.null(input$chamber_sel_camera)) return()
+      ch <- available_chambers_camera()
+      
+      # If no chambers available (data gap), disable and exit
+      if (!length(ch)) {
+        shinyjs::disable("chamber_sel_camera")
+        updateSelectInput(session, "chamber_sel_camera",
+                          choices = setNames(numeric(0), character(0)),
+                          selected = character(0))
+        return(invisible(NULL))
+      }
+      
+      shinyjs::enable("chamber_sel_camera")
+      choices_named <- .label_chambers(ch)
+      
+      # 2. Determine Selection
+      # Get the current value without creating a dependency
+      old_sel <- suppressWarnings(as.integer(isolate(input$chamber_sel_camera)))
+      
+      # LOGIC:
+      # If we are navigating and a specific chamber was requested, use it (Optional feature)
+      # Otherwise, try to keep 'old_sel'. 
+      # If 'old_sel' is not valid for the new state, default to the first available (ch[1]).
+      
+      target_chamber <- if (isTRUE(is_navigating()) && !is.null(input$switch_to_camera$chamber)) {
+        as.integer(input$switch_to_camera$chamber)
+      } else {
+        NULL
+      }
+
+      if (!is.null(target_chamber) && target_chamber %in% ch) {
+        new_sel <- target_chamber
+      } else if (length(old_sel) && !is.na(old_sel) && old_sel %in% ch) {
+        new_sel <- old_sel
+      } else {
+        new_sel <- ch[1]
+      }
+      
+      # 3. Update
+      updateSelectInput(session, "chamber_sel_camera",
+                        choices = choices_named,
+                        selected = new_sel)
+    },
+    ignoreInit = FALSE
+  )
   
   
   # output$chamber_selector_camera <- renderUI({
@@ -616,38 +675,6 @@ observeEvent(input$btn_howto, {
 
   
   # ==== 4) DYNAMIC UI (SELECTORS) ===========================================
-  # -- 4.1) States selector (graph - multi-country) --------------------------
-  output$state_selector <- renderUI({
-    req(current_tab() == "graph_tab")
-    
-    states_choices <- data %>%
-      dplyr::distinct(country_name, state_name) %>%
-      dplyr::arrange(country_name, state_name) %>%
-      dplyr::group_by(country_name) %>%
-      dplyr::group_split()
-    
-    # For each country group: labels = Title Case, values = original state_name
-    choices_list <- lapply(states_choices, function(group) {
-      vals  <- group$state_name
-      labs  <- stringr::str_to_title(vals)
-      stats::setNames(as.list(vals), labs)  # names = labels shown; list items = values returned
-    })
-    
-    countries <- sapply(states_choices, function(g) unique(g$country_name))
-    names(choices_list) <- countries
-    
-    shinyWidgets::pickerInput(
-      inputId = "state_sel",
-      label   = "Select states from any country:",
-      choices = choices_list,
-      selected = c("CAPITAL FEDERAL", "DISTRITO FEDERAL", "CDMX"),  # original values still work
-      multiple = TRUE,
-      options  = list(`actions-box` = TRUE,
-                      `live-search` = TRUE,
-                      `selectedTextFormat` = "values")
-    )
-  })
-  
 
   # -- 4.4) Country/Year selectors (map_tab) ---------------------------------
   output$country_selector <- renderUI({
@@ -1051,52 +1078,120 @@ output$year_selector <- renderUI({
 
   # ==== 14) GO to camera tab ======================================================
 
-observeEvent(input$switch_to_camera, {
-  req(input$switch_to_camera)
-  
-  # 1. IMMEDIATE ACTIONS
-  is_navigating(TRUE)
-  shinyjs::show("global-loader")  
-
-  target_country <- input$switch_to_camera$country
-  target_state   <- input$switch_to_camera$state
-  target_year_raw <- as.integer(input$switch_to_camera$year)
-  
-  # 2. TAB SWITCH
-  updateTabItems(session, "tabs", selected = "camera")
-  
-  # 3. CASCADE DELAYS
-  shinyjs::delay(500, {
-    updateSelectInput(session, "country_sel_camera", selected = target_country)
+  observeEvent(input$switch_to_camera, {
+    req(input$switch_to_camera)
     
-    shinyjs::delay(900, {
-      updateSelectInput(session, "state_sel_camera", selected = target_state)
-      
-      shinyjs::delay(1300, {
-        yrs <- sled_years_scoped_camera()
-        yrs_num <- as.integer(yrs)
-        
-        if (length(yrs_num) > 0) {
-          lower_years <- yrs_num[yrs_num <= target_year_raw]
-          final_year <- if (length(lower_years) > 0) max(lower_years) else min(yrs_num)
-          
-          shinyWidgets::updateSliderTextInput(
-            session, "year_sel_camera", 
-            choices = as.character(sort(yrs_num)),
-            selected = as.character(final_year)
-          )
-        }
-        
-        # 4. RELEASE AND HIDE (1.2s Cooldown)
-        shinyjs::delay(1500, {
-          is_navigating(FALSE)
-          shinyjs::hide("global-loader")
-          print("LOG [Switch]: Navigation complete, loader hidden.")
-        })
-      })
+    # 1. LOCK & LOAD
+    is_navigating(TRUE)
+    shinyjs::show("global-loader") 
+
+    # 2. SWITCH TAB
+    updateTabItems(session, "tabs", selected = "camera")
+    
+    # 3. UNLOCK (Single Delay)
+    # We give the UI 1.5 seconds to render the new selectors (handled by renderUI)
+    # before we release the lock.
+    shinyjs::delay(1000, {
+      is_navigating(FALSE)
+      shinyjs::hide("global-loader")
+      print("LOG [Switch]: Navigation complete.")
     })
   })
-})
+
+
+    # ==== 14) GO to graph tab ======================================================
+
+# ==== 14) GO to graph tab (UPDATER) =========================================
+  # ==== 14) GO to graph tab (UPDATER) =========================================
+  observeEvent(input$switch_to_graph, {
+    req(input$switch_to_graph)
+    
+    print("LOG [Switch]: Button clicked.")
+    
+    # 1. PREPARE IDS
+    # A) States (Always valid, logic remains same)
+    target_country <- toupper(input$switch_to_graph$country)
+    target_state   <- toupper(input$switch_to_graph$state)
+    state_node_id  <- paste0(target_country, "-", target_state)
+    
+    # B) Variable (New Validation Logic)
+    target_var <- input$switch_to_graph$variable
+    var_node_id <- NULL
+    variable_is_missing <- FALSE
+    
+    if (!is.null(target_var)) {
+      # Remove suffix to match dictionary
+      clean_var <- sub("_[12]$", "", target_var)
+      
+      # Look up metadata ONLY for variables allowed in the graph
+      var_meta <- dict %>% 
+        dplyr::filter(variable == clean_var, viewable_graph == 1) %>% 
+        dplyr::slice(1)
+      
+      if (nrow(var_meta) > 0) {
+        # Success: Variable exists in Graph
+        ds     <- var_meta$dataset
+        pretty <- var_meta$pretty_name
+        
+        if (ds == "Legislative Elections") {
+          chamber_str <- if (grepl("_2$", target_var)) "Upper Chamber" else "Lower Chamber"
+          var_node_id <- paste(ds, chamber_str, pretty, sep = "-")
+        } else {
+          var_node_id <- paste(ds, pretty, sep = "-")
+        }
+      } else {
+        # Failure: Variable is Map-only
+        variable_is_missing <- TRUE
+      }
+    }
+    
+    # 2. HANDLE MISSING VARIABLE (Show Warning)
+    if (variable_is_missing) {
+      showModal(modalDialog(
+        # Use tags$span to group the icon and text safely
+        title = tags$span(
+          # No manual color needed: it will pick up the dark color (#111) from your CSS header
+          shiny::icon("exclamation-triangle", style = "margin-right: 8px;"), 
+          "Variable Not Available"
+        ),
+        HTML(paste0(
+          "<div style='margin-top: 5px;'>",
+            "<p>The variable <strong>", target_var, "</strong> is available in the Map tool but cannot be graphed.</p>",
+            "<p style='color: #666; font-size: 0.9em;'>Switching to Graph view with the current state selection only.</p>",
+          "</div>"
+        )),
+        easyClose = TRUE, 
+        size = "s",   
+        # The footer will automatically pick up your purple button style
+        footer = modalButton("OK")
+      ))
+    }
+
+    # 3. LOCK & LOAD
+    is_navigating(TRUE)
+    shinyjs::show("global-loader") 
+
+    # 4. SWITCH TAB
+    updateTabItems(session, "tabs", selected = "graph_tab")
+    
+    # 5. SEND UPDATE COMMANDS
+    shinyjs::delay(500, {
+      # Update State Tree (Always)
+      session$sendCustomMessage("update_fancytree_selection", list(id = state_node_id))
+      
+      # Update Variable Tree (Only if valid)
+      if (!is.null(var_node_id)) {
+        session$sendCustomMessage("update_fancytree_variable_graph", list(id = var_node_id))
+      }
+    })
+
+    # 6. UNLOCK
+    shinyjs::delay(1500, {
+      is_navigating(FALSE)
+      shinyjs::hide("global-loader")
+      print("LOG [Switch]: Navigation complete.")
+    })
+  })
   
 
   

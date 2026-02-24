@@ -108,7 +108,56 @@ Shiny.addCustomMessageHandler('fancytree_vars_data_graph', function (message) {
     }
 });
 
+// --- Handler for Graph VARIABLE Tree ---
+// --- Handler for Graph VARIABLE Tree ---
+Shiny.addCustomMessageHandler("update_fancytree_variable_graph", function(message) {
+  
+  const $tree = $("#fancytree_vars_demo_graph");
+  const tree = $.ui.fancytree.getTree($tree);
 
+  if (!tree) return;
+
+  // Deactivate current selection
+  const activeNode = tree.getActiveNode();
+  if (activeNode) {
+    activeNode.setActive(false);
+  }
+
+  const node = tree.getNodeByKey(message.id);
+
+  if (node) {
+    node.makeVisible({noAnimation: true}).done(function() {
+      
+      node.setActive(true);
+
+      // --- ROBUST SCROLL LOGIC ---
+      setTimeout(() => {
+        const $el = $(node.span);
+        if ($el.length === 0) return;
+
+        // 1. Get offset of the node relative to the document
+        const nodeOffset = $el.offset().top;
+        
+        // 2. Get offset of the container relative to the document
+        const containerOffset = $tree.offset().top;
+        
+        // 3. Get current scroll position
+        const currentScroll = $tree.scrollTop();
+        
+        // 4. Calculate exact position inside the container
+        // (Node Document Position - Container Document Position) + Current Scroll = Absolute Top inside scrollbox
+        const absolutePosition = nodeOffset - containerOffset + currentScroll;
+        
+        // 5. Apply with offset (100px from top)
+        const offset = 100; 
+        $tree.scrollTop(absolutePosition - offset);
+        
+      }, 400); 
+    });
+  } else {
+    console.warn("JS: Variable node not found -> " + message.id);
+  }
+});
 
 
 /// state selector
@@ -147,4 +196,49 @@ Shiny.addCustomMessageHandler("fancytree_states_data", function (message) {
   // ✅ Send initial selection
   const selectedKeys = tree.getSelectedNodes().map(n => n.key);
   Shiny.setInputValue("selected_nodes_states", JSON.stringify(selectedKeys));
+});
+
+Shiny.addCustomMessageHandler("update_fancytree_selection", function(message) {
+  const $tree = $("#fancytree_states_demo");
+  const tree = $.ui.fancytree.getTree($tree);
+
+  if (!tree) return;
+
+  // Clear previous selection
+  tree.visit(function(node){
+    node.setSelected(false, {noEvents: true});
+  });
+
+  const node = tree.getNodeByKey(message.id);
+
+  if (node) {
+    node.makeVisible({noAnimation: true}).done(function() {
+      
+      node.setSelected(true);
+      node.setActive(true);
+
+      // --- ROBUST SCROLL LOGIC ---
+      setTimeout(() => {
+        const $el = $(node.span); 
+        if ($el.length === 0) return;
+
+        // 1. Get offset of the node relative to the document
+        const nodeOffset = $el.offset().top;
+        
+        // 2. Get offset of the container relative to the document
+        const containerOffset = $tree.offset().top;
+        
+        // 3. Get current scroll position
+        const currentScroll = $tree.scrollTop();
+        
+        // 4. Calculate exact position inside the container
+        const absolutePosition = nodeOffset - containerOffset + currentScroll;
+        
+        // 5. Apply with offset
+        const offset = 100; 
+        $tree.scrollTop(absolutePosition - offset);
+
+      }, 400); 
+    });
+  }
 });

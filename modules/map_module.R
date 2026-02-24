@@ -343,14 +343,12 @@ mapModuleServer <- function(id, data_map, input_var_sel, dict, country_bboxes, i
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
-    
     var_info <- reactive({
-      clean_var <- sub("_[12]$", "", input_var_sel())  # remove "_1" or "_2" at the end
+      clean_var <- sub("_[12]$", "", input_var_sel())
       dict %>% 
         filter(variable == clean_var) %>% 
         slice(1)
     })
-    
     
     df_map <- reactive({
       req(data_map(), input_var_sel(), active_tab() == "map_tab")
@@ -366,9 +364,6 @@ mapModuleServer <- function(id, data_map, input_var_sel, dict, country_bboxes, i
       df_map()[[".leaflet_value"]]
     })
     
-    
-    
-    
     palette_vector <- reactive({
       unlist(strsplit(var_info()$palette, ","))
     })
@@ -380,7 +375,7 @@ mapModuleServer <- function(id, data_map, input_var_sel, dict, country_bboxes, i
     prev_domain <- reactiveVal(NULL)
     prev_country <- reactiveVal(NULL)
     prev_var <- reactiveVal(NULL)
-    prev_tab <- reactiveVal(NULL)  # Nueva variable reactiva para trackear el tab anterior
+    prev_tab <- reactiveVal(NULL)
     
     output$map <- renderLeaflet({
       req(active_tab() == "map_tab", input_country_sel() != "", input_var_sel())
@@ -392,20 +387,15 @@ mapModuleServer <- function(id, data_map, input_var_sel, dict, country_bboxes, i
           lng2 = country_bboxes[[input_country_sel()]]$lng2,
           lat2 = country_bboxes[[input_country_sel()]]$lat2
         ) %>%
-        addProviderTiles("CartoDB.PositronNoLabels") # clean white base, no labels
+        addProviderTiles("CartoDB.PositronNoLabels")
     })
     
-
-    
     observe({
-      # Detecta cambio de tab primero, sin req que bloquee
       tab_changed <- !identical(active_tab(), prev_tab())
-      prev_tab(active_tab())  # Actualiza inmediatamente el tab anterior
+      prev_tab(active_tab())
       
-      # Solo procede si estamos en map_tab
       if (active_tab() != "map_tab") return()
       
-      # Ahora sí requerimos los datos
       req(df_map(), input_var_sel(), input_country_sel())
       
       proxy <- leafletProxy(ns("map"), data = df_map())
@@ -414,7 +404,6 @@ mapModuleServer <- function(id, data_map, input_var_sel, dict, country_bboxes, i
         proxy %>%
           clearShapes() %>%
           clearControls()
-
         
         prev_domain(NULL)
         prev_country(NULL)
@@ -437,7 +426,7 @@ mapModuleServer <- function(id, data_map, input_var_sel, dict, country_bboxes, i
           highlightOptions = highlightOptions(weight = 5, color = "#666", fillOpacity = 1),
           label = ~paste0(stringr::str_to_title(state_name_geom), ": ", format_leaflet_value(.leaflet_value, var_info()$type)),
           popup = ~paste0(
-            # --- 1. Header (Grey Background) ---
+            # --- 1. Header ---
             "<div class='popup-header'>",
               "<span>", var_info()$pretty_name, "</span>",
               "<span style='color:#555; font-weight:normal;'>", format_leaflet_value(.leaflet_value, var_info()$type), "</span>",
@@ -446,7 +435,7 @@ mapModuleServer <- function(id, data_map, input_var_sel, dict, country_bboxes, i
             # --- 2. Body Content ---
             "<div class='popup-content'>",
             
-              # Basic Info Rows
+              # Basic Info
               "<div class='popup-row'><b>State:</b> ", stringr::str_to_title(state_name_geom), "</div>",
               "<div class='popup-row'><b>Governor:</b> ", stringr::str_to_title(winner_candidate_sub_exe), "</div>",
               "<div class='popup-row'><b>Party:</b> ", stringr::str_to_title(head_party_sub_exe), "</div>",
@@ -458,7 +447,7 @@ mapModuleServer <- function(id, data_map, input_var_sel, dict, country_bboxes, i
                 ), 
               "</div>",
             
-              # --- Details: Governor ---
+              # Governor Details
               "<details class='popup-details'>",
                 "<summary>Governor details</summary>",
                 "<div>",
@@ -474,7 +463,7 @@ mapModuleServer <- function(id, data_map, input_var_sel, dict, country_bboxes, i
                 "</div>",
               "</details>",
               
-              # --- Details: Legislative ---
+              # Legislative Details
               ifelse(is.na(chamber_sub_leg), "",
                 paste0(
                   "<details class='popup-details'>",
@@ -487,34 +476,47 @@ mapModuleServer <- function(id, data_map, input_var_sel, dict, country_bboxes, i
                 )
               ),
               
-              # --- Camera Button ---
-              ifelse(is.na(chamber_sub_leg), "", 
-                paste0(
-                  "<div class='camera-link-container'>",
-                    "<a href='#' class='btn-camera-link' ",
-                    "onclick=\"",
-                      "var payload = {",
-                        "country: '", input_country_sel(), "', ",
-                        "state: '", state_name_geom, "', ", 
-                        "year: '", year, "'",
-                      "};",
-                      "Shiny.setInputValue('switch_to_camera', payload, {priority: 'event'});",
-                      "return false;",
-                    "\"",
-                    ">",
-                      "<i class='fa fa-landmark' style='margin-right:6px;'></i>",
-                      "Camera Tool",
-                    "</a>",
-                  "</div>"
-                )
-              ),
+              # --- 3. Buttons Container (Flexbox) ---
+              "<div style='display: flex; gap: 5px; margin-top: 8px;'>",
               
+                # BUTTON 1: CAMERA TOOL (Always Visible now)
+                "<a href='#' class='btn-camera-link' style='flex: 1; text-align: center;' ",
+                "onclick=\"",
+                  "var payload = {",
+                    "country: '", input_country_sel(), "', ",
+                    "state: '", state_name_geom, "', ", 
+                    "year: '", year, "'",
+                  "};",
+                  "Shiny.setInputValue('switch_to_camera', payload, {priority: 'event'});",
+                  "return false;",
+                "\"",
+                ">",
+                  "<i class='fa fa-landmark'></i> Camera",
+                "</a>",
+                
+                # BUTTON 2: GRAPH TOOL (Always Visible)
+                "<a href='#' class='btn-camera-link' style='flex: 1; text-align: center;' ",
+                "onclick=\"",
+                  "var payload = {",
+                    "country: '", toupper(input_country_sel()), "', ", 
+                    "state: '", toupper(state_name_geom), "', ",       
+                    "year: '", year, "', ",
+                    "variable: '", input_var_sel(), "'", # <--- ADDED VARIABLE
+                  "};",
+                  
+                  "Shiny.setInputValue('switch_to_graph', payload, {priority: 'event'});",
+                  "return false;",
+                "\"",
+                ">",
+                  "<i class='fa fa-chart-line'></i> Graph",
+                "</a>",
+                
+              "</div>",
+
             "</div>" # End popup-content
           )
         )
       
-      
-      # Incluye tab_changed en la condición para re-renderizar la leyenda
       if (domain_changed || country_changed || var_changed || tab_changed) {
         proxy %>%
           clearControls() %>%
@@ -529,15 +531,10 @@ mapModuleServer <- function(id, data_map, input_var_sel, dict, country_bboxes, i
           )
       }
       
-
-      
-      
       prev_domain(current_domain)
       prev_country(input_country_sel())
       prev_var(input_var_sel())
       
-      
-      # --- after polygons and legend updates ---
       later::later(function() {
         session$sendCustomMessage("addExportButton", list(mapId = paste0(id, "-map")))
       }, 0.0000001)
@@ -548,10 +545,8 @@ mapModuleServer <- function(id, data_map, input_var_sel, dict, country_bboxes, i
       req(click$lat, click$lng)
       
       leafletProxy("map") %>%
-        # use input$map_zoom to maintain the current zoom level
         flyTo(lng = click$lng, lat = click$lat, zoom = input$map_zoom) 
     })
-    
     
   })
 }

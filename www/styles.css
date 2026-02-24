@@ -152,27 +152,80 @@ a:hover, a:focus {
 
 
 /* =========================================================
-   5) MODALES
+   5) MODALES (Standard Bootstrap Modals)
    ========================================================= */
 .modal-content {
   background-color: var(--bg-light) !important;
   color: var(--text-dark) !important;
-  /*border: 1px solid var(--orange) !important;*/
-  border-radius: 8px;
-  box-shadow: var(--shadow-200);
+  border: none !important; /* Remove default gray border */
+  border-radius: 12px !important; /* Softer roundness */
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important; /* Deep modern shadow */
+  overflow: hidden; /* Clips the header corners */
 }
 
 .modal-header {
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
   background-color: var(--orange) !important;
   color: #111 !important;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Keeps title left, close btn right */
 }
+
+.modal-title {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  font-size: 1.25em;
+}
+
+/* Style the 'X' close button in modals */
+.modal-header .close {
+  color: #111 !important;
+  text-shadow: none !important;
+  opacity: 0.6;
+  font-size: 24px;
+  margin-top: -2px;
+  transition: opacity 0.2s;
+}
+.modal-header .close:hover {
+  opacity: 1;
+}
+
+.modal-body {
+  padding: 20px 25px;
+  font-size: 1.1em;
+  line-height: 1.5;
+  color: var(--gray);
+}
+
+.modal-footer {
+  background-color: var(--bg-muted);
+  border-top: 1px solid rgba(0,0,0,0.05);
+  padding: 12px 20px;
+}
+
 .modal-footer .btn {
   background-color: var(--purple) !important;
   color: #fff !important;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 8px 16px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  transition: all 0.2s ease;
+}
+
+.modal-footer .btn:hover {
+  background-color: var(--magenta) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Vertically center modals on screen */
+.modal-dialog {
+  display: flex;
+  align-items: center;
+  min-height: calc(100% - 60px); 
 }
 
 
