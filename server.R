@@ -328,6 +328,12 @@ server <- function(input, output, session) {
   })
 
   target_camera_year <- reactiveVal(NULL)
+  saved_camera_year  <- reactiveVal(NULL)   # persists across slider recreation
+
+  # Keep saved_camera_year in sync with the actual slider
+  observeEvent(input$year_sel_camera, {
+    saved_camera_year(input$year_sel_camera)
+  }, ignoreInit = TRUE)
 
   output$year_selector_camera_ui <- renderUI({
     req(current_tab() == "camera")
@@ -340,28 +346,31 @@ server <- function(input, output, session) {
     yrs_chr <- as.character(yrs_num)
     
     # 2. Determine selection
-    # We use isolate() to stop the slider from reacting to itself
-    current_val <- isolate(input$year_sel_camera)
-    
     # --- LOGIC SELECTION ---
-    if (isTRUE(is_navigating()) && !is.null(input$switch_to_camera$year)) {
-      # CASE A: Navigating -> Force the target year
-      target <- as.character(input$switch_to_camera$year)
+    nav_target <- isolate(target_camera_year())
+    if (!is.null(nav_target)) {
+      # CASE A: Navigation target available -> Force the target year
+      target <- nav_target
       if (target %in% yrs_chr) {
         sel <- target
       } else {
-          # Nearest Lower Logic for Flag
+          # Nearest Lower Logic
           t_int <- as.integer(target)
           lower <- yrs_num[yrs_num <= t_int]
           sel <- if(length(lower)>0) as.character(max(lower)) else tail(yrs_chr, 1)
       }
       
     } else {
-      # CASE B: Standard / Navigation Finished
-      # We MUST check if there is a currently selected value (even if is_navigating is FALSE now)
-      # This prevents resetting to the last year when the loader finishes.
+      # CASE B: Standard interaction (no navigation)
+      # Use saved_camera_year which survives slider recreation
+      current_val <- isolate(saved_camera_year())
       if (!is.null(current_val) && current_val %in% yrs_chr) {
         sel <- current_val
+      } else if (!is.null(current_val)) {
+        # Nearest available year to what the user had selected
+        t_int <- as.integer(current_val)
+        lower <- yrs_num[yrs_num <= t_int]
+        sel <- if(length(lower) > 0) as.character(max(lower)) else yrs_chr[1]
       } else {
         sel <- tail(yrs_chr, 1) # Default to last year
       }
@@ -1081,6 +1090,9 @@ output$year_selector <- renderUI({
   observeEvent(input$switch_to_camera, {
     req(input$switch_to_camera)
     
+    # 0. Store navigation target BEFORE anything else (timing-independent)
+    target_camera_year(as.character(input$switch_to_camera$year))
+    
     # 1. LOCK & LOAD
     is_navigating(TRUE)
     shinyjs::show("global-loader") 
@@ -1088,15 +1100,25 @@ output$year_selector <- renderUI({
     # 2. SWITCH TAB
     updateTabItems(session, "tabs", selected = "camera")
     
-    # 3. UNLOCK (Single Delay)
-    # We give the UI 1.5 seconds to render the new selectors (handled by renderUI)
-    # before we release the lock.
-    shinyjs::delay(1000, {
+    # 3. UNLOCK (safety delay for loader only)
+    shinyjs::delay(2000, {
       is_navigating(FALSE)
       shinyjs::hide("global-loader")
       print("LOG [Switch]: Navigation complete.")
     })
   })
+  
+  # Clear navigation target when user manually changes camera selectors
+  # (but NOT during navigation, so the cascade can finish first)
+  observeEvent(
+    list(input$country_sel_camera, input$state_sel_camera, input$chamber_sel_camera),
+    {
+      if (!isTRUE(is_navigating())) {
+        target_camera_year(NULL)
+      }
+    },
+    ignoreInit = TRUE
+  )
 
 
     # ==== 14) GO to graph tab ======================================================
