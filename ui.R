@@ -1,18 +1,12 @@
-
-
 ui <- dashboardPage(
   dashboardHeader(
     title = tags$div(
       class = "app-header-logo",
-      
       tags$a(
         href = "#", # We use # because the action happens via JavaScript
         onclick = "parent.postMessage('trigger_toggleHero', '*'); return false;",
         tags$img(src = "spp_logo_v5.svg", height = "50px")
       ),
-      
-      
-      
       tags$div(
         class = "tec-logo-title",
         tags$img(
@@ -34,9 +28,8 @@ ui <- dashboardPage(
         span(class = "hidden-xs", " How to")
       )
     ),
-    
-    
-    
+
+
     # --- Logos and Contact Link (keep these as before) ---
     tags$li(
       class = "dropdown",
@@ -61,57 +54,47 @@ ui <- dashboardPage(
         )
       )
     )
-
-    
   ),
-  title = "SPP-Subnational Politics Project",   # <-- this sets <title>
+  title = "SPP-Subnational Politics Project", # <-- this sets <title>
   dashboardSidebar(
     width = 250,
     useShinyjs(),
-
-
-
-
     tagList(
-      sidebarMenu(id = "tabs",
-                  menuItem("About", tabName = "about", icon = icon("info-circle")),
-                  menuItem("Mapping tool", tabName = "map_tab", icon = icon("map"),selected = TRUE),
-                  menuItem("Camera tool", tabName = "camera", icon = icon("landmark")),
-                  menuItem("Graphing tool", tabName = "graph_tab", icon = icon("chart-line")),                  
-                  menuItem("Codebook", tabName = "codebook", icon = icon("book-open")),
-                  menuItem("Databases", tabName = "data_tab", icon = icon("table"))
-
+      sidebarMenu(
+        id = "tabs",
+        menuItem("About", tabName = "about", icon = icon("info-circle")),
+        menuItem("Mapping tool", tabName = "map_tab", icon = icon("map"), selected = TRUE),
+        menuItem("Camera tool", tabName = "camera", icon = icon("landmark")),
+        menuItem("Graphing tool", tabName = "graph_tab", icon = icon("chart-line")),
+        menuItem("Codebook", tabName = "codebook", icon = icon("book-open")),
+        menuItem("Databases", tabName = "data_tab", icon = icon("table"))
       ),
       hidden(uiOutput("db_selector")),
-      hidden(uiOutput("country_selector")),  # default: visible
+      hidden(uiOutput("country_selector")), # default: visible
       shinyjs::hidden(
         div(
-          id = "fancytree_states_container",   # new container id (renamed for clarity)
+          id = "fancytree_states_container", # new container id (renamed for clarity)
           style = "padding: 15px;",
-          
           tags$label("Select a state:", `for` = "fancytree_states_demo"),
-          
-          div(id = "fancytree_states_demo")   # tree mounts here
+          div(id = "fancytree_states_demo") # tree mounts here
         )
       ),
-      
       hidden(
-        div( id= "fancytree_vars_demo_container",
-             style = "padding: 15px;",
+        div(
+          id = "fancytree_vars_demo_container",
+          style = "padding: 15px;",
           tags$label("Select a variable:", `for` = "fancytree_vars_demo"),
           div(id = "fancytree_vars_demo")
         )
       ),
-      
       hidden(
-        div( id= "fancytree_vars_container_graph",
-             style = "padding: 15px;",
-             tags$label("Select a variable:", `for` = "fancytree_vars_demo_graph"),
-             div(id = "fancytree_vars_demo_graph")
+        div(
+          id = "fancytree_vars_container_graph",
+          style = "padding: 15px;",
+          tags$label("Select a variable:", `for` = "fancytree_vars_demo_graph"),
+          div(id = "fancytree_vars_demo_graph")
         )
       ),
-      
-      
       hidden(selectInput("country_sel2", "Select a country:", choices = c(unique(data$country_name)), selected = "ARGENTINA")),
       hidden(selectInput("state_sel2", "Select a state:", choices = NULL)),
       hidden(uiOutput("country_selector_camera")),
@@ -121,46 +104,66 @@ ui <- dashboardPage(
         choices = c("Lower chamber" = 1, "Upper chamber" = 2),
         selected = 1
       ))
-      )
+    )
   ),
   dashboardBody(
     # Global loader overlay — placed in body (not sidebar) so it works on mobile
     hidden(
-      div(id = "global-loader",
-          div(class = "loader-bouncing-spp",
-              # The 3 Bouncing Circles
-              div(class = "circle"),
-              div(class = "circle"),
-              div(class = "circle"),
-              # The Shadows
-              div(class = "shadow"),
-              div(class = "shadow")
-          ),
-          h2("Syncing Data...")
+      div(
+        id = "global-loader",
+        div(
+          class = "loader-bouncing-spp",
+          # The 3 Bouncing Circles
+          div(class = "circle"),
+          div(class = "circle"),
+          div(class = "circle"),
+          # The Shadows
+          div(class = "shadow"),
+          div(class = "shadow")
+        ),
+        h2("Syncing Data...")
       )
     ),
-    
-    tags$head(includeHTML("ga.html"),
-              tags$script(src="tab_analytics.js"),
-              tags$script(src = "input_analytics.js")
+    # Swipe-left hint — created via JS directly in document.body
+    # (AdminLTE transforms on sidebar + content-wrapper break position:fixed in any Shiny container)
+    tags$script(HTML("
+      (function() {
+        var hintEl = null;
+        var obs = new MutationObserver(function() {
+          var isPortrait = window.matchMedia('(orientation: portrait)').matches;
+          var isOpen = document.body.classList.contains('sidebar-open');
+
+          if (isOpen && isPortrait && !hintEl) {
+            hintEl = document.createElement('div');
+            hintEl.className = 'swipe-hint-js';
+            hintEl.innerHTML =
+              '<span class=\"chevron c1\">&lsaquo;</span>' +
+              '<span class=\"chevron c2\">&lsaquo;</span>' +
+              '<span class=\"chevron c3\">&lsaquo;</span>';
+            document.body.appendChild(hintEl);
+          } else if (!isOpen && hintEl) {
+            hintEl.remove();
+            hintEl = null;
+          }
+        });
+        obs.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+      })();
+    ")),
+    tags$head(
+      includeHTML("ga.html"),
+      tags$script(src = "tab_analytics.js"),
+      tags$script(src = "input_analytics.js")
     ),
-    
-    
-    
-    
-    
     tags$head(
       tags$link(rel = "icon", type = "image/svg+xml", href = "spp_logo_tab_v2.svg")
     ),
     tags$head(
-
       # --- keep session alive ---
       tags$script(HTML("
         setInterval(function() {
           Shiny.setInputValue('keep_alive', Date.now());
         }, 60000); // every 60 seconds
       ")),
-      
 
 
       # --- HOW TO TRIGGER---
@@ -170,15 +173,50 @@ ui <- dashboardPage(
           Shiny.setInputValue('btn_howto', Date.now(), {priority: 'event'});
         });
       ")),
-      
+
       # SIDE BAR SWIPE
-      tags$script(src = "sidebar_swipe.js")
-      
-      
+      tags$script(src = "sidebar_swipe.js"),
+
+      # DEBUG: Log sidebar state and orientation
+      tags$script(HTML("
+        $(function() {
+          function logSidebarState() {
+            var classes = document.body.className;
+            var orient = window.matchMedia('(orientation: portrait)').matches ? 'portrait' : 'landscape';
+            var w = window.innerWidth;
+            var h = window.innerHeight;
+            console.log('[Sidebar Debug] body classes:', classes);
+            console.log('[Sidebar Debug] orientation:', orient, '| viewport:', w + 'x' + h);
+            var hint = document.querySelector('.swipe-hint');
+            if (hint) {
+              var style = window.getComputedStyle(hint);
+              console.log('[Sidebar Debug] swipe-hint display:', style.display);
+              var rect = hint.getBoundingClientRect();
+              console.log('[Sidebar Debug] swipe-hint rect:', JSON.stringify({top: rect.top, left: rect.left, width: rect.width, height: rect.height}));
+              console.log('[Sidebar Debug] swipe-hint opacity:', style.opacity, 'visibility:', style.visibility);
+            } else {
+              console.log('[Sidebar Debug] swipe-hint element NOT found in DOM');
+            }
+            var toggle = document.getElementById('sidebar-toggle-relocated');
+            if (toggle) {
+              var ts = window.getComputedStyle(toggle);
+              console.log('[Sidebar Debug] toggle animation:', ts.animationName, ts.animationDuration);
+            } else {
+              console.log('[Sidebar Debug] sidebar-toggle-relocated NOT found');
+            }
+          }
+          // Log on load
+          logSidebarState();
+          // Log on sidebar toggle click
+          $(document).on('click', '.sidebar-toggle, #sidebar-toggle-relocated', function() {
+            setTimeout(logSidebarState, 300);
+          });
+          // Log on orientation change
+          window.matchMedia('(orientation: portrait)').addEventListener('change', logSidebarState);
+        });
+      "))
     ),
-     
     tags$head(
-      
       ## move the toggle
       tags$script(HTML("
         $(function () {
@@ -191,14 +229,12 @@ ui <- dashboardPage(
           }
         });
       ")),
-      
       tags$script(HTML("
         $('#btn_howto').on('click', function(e) {
           e.preventDefault();
           Shiny.setInputValue('btn_howto', new Date().getTime());
         });
       ")),
-      
       tags$script(src = "https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.11/jstree.min.js"),
       tags$link(
         rel = "stylesheet",
@@ -207,80 +243,77 @@ ui <- dashboardPage(
       tags$script(
         src = "https://cdn.jsdelivr.net/npm/jquery.fancytree@2/dist/jquery.fancytree-all-deps.min.js"
       ),
-      
-      
       tags$script(src = "fancytree_init.js"),
       tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.11/themes/default/style.min.css"),
       tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"),
       tags$link(id = "theme-css", rel = "stylesheet", type = "text/css", href = "styles.css"),
-      
-      
     ),
     tags$script(HTML("
       function fixAnimateButtons() {
         $('.slider-animate-button').each(function() {
           const btn = $(this);
-    
+
           // Prevent re-initializing the same button
           if (btn.hasClass('ab-fixed')) return;
-    
+
           btn.addClass('ab-fixed');
-    
+
           // Insert text span if missing
           if (!btn.find('.btn-text').length) {
             btn.append('<span class=\"btn-text\"> Play</span>');
           }
-    
+
           // Keep text in sync with Shiny internal state
           const updateText = () => {
             const playing = btn.hasClass('playing');
             btn.find('.btn-text').text(playing ? ' Pause' : ' Play');
           };
-    
+
           // Click handler (only once)
           btn.on('click.animatefix', function() {
             // Toggle ONLY the visual class.
             btn.toggleClass('playing');
             updateText();
           });
-    
+
           // Update when Shiny updates the widget
           $(document).on('shiny:value', updateText);
-    
+
           // Initial sync
           updateText();
         });
       }
-    
+
       // Run on load and whenever the DOM changes
       const obs = new MutationObserver(fixAnimateButtons);
       obs.observe(document.body, { childList: true, subtree: true });
-    
+
       // Also run once at startup
       $(document).on('shiny:connected', fixAnimateButtons);
     ")),
     tabItems(
       tabItem(
-        tabName = "map_tab", 
+        tabName = "map_tab",
         tagList(
           mapModuleUI("map1"),
-          
           absolutePanel(
-            top = 90, right = 12, 
+            top = 90, right = 12,
             width = 300,
             draggable = F,
-            div(class = "small-text-box",
-                id = "var-desc-map",
-                box(
-                  solidHeader = F,
-                  collapsible = F,
-                  collapsed = FALSE,
-                  width = NULL,
-                  closable = TRUE,
-                  uiOutput("var_description_map")
-                )
-            )),
-          
+            div(
+              class = "small-text-box",
+              id = "var-desc-map",
+              box(
+                solidHeader = F,
+                collapsible = F,
+                collapsed = FALSE,
+                width = NULL,
+                closable = TRUE,
+                uiOutput("var_description_map")
+              )
+            )
+          ),
+
           # Custom year selector placed at the bottom of the tab
           div(
             style = "position: absolute; bottom: 50%; left: 40%; z-index: 1000;",
@@ -290,117 +323,108 @@ ui <- dashboardPage(
             style = "position: absolute; bottom: 30px; left: 40%; right: 20%; z-index: 1000; overflow-y: hidden; overflow-x: hidden;",
             uiOutput("year_selector")
           ),
-
-          
-          
         )
       ),
-
-      
       tabItem(
-        tabName = "graph_tab",  # Este va directamente dentro de tabItem()
+        tabName = "graph_tab", # Este va directamente dentro de tabItem()
         fluidRow(
-          column(9,
-                 linePlotModuleUI("lp")
+          column(
+            9,
+            linePlotModuleUI("lp")
           ),
-          column(3,
-                 box(
-                   #title = "Variable description", 
-                   solidHeader = F,
-                   collapsible = FALSE, 
-                   collapsed = FALSE,
-                   width = NULL,
-                   closable = TRUE,
-                   uiOutput("var_description_graph")
-                 ),
-                 box(
-                   #title = "States:", 
-                   #solidHeader = F,
-                   width = NULL,
-                   height = NULL,
-                   linePlotLegendUI("lp")),
-                box(
-                  width = NULL,
-                  height = NULL,
-                  
-                  # Axis Configuration
-                  shinyWidgets::prettyCheckbox(
-                    inputId = "force_y0",
-                    label = "Y-axis starts at 0",
-                    value = FALSE,
-                    status = "warning",
-                    shape = "square",
-                    icon = icon("check"),
-                    outline = TRUE,
-                    animation = "pulse"
-                  ),
-                  
-                  # Coloring Toggle (Replaces the Radio Buttons)
-                  shinyWidgets::prettyCheckbox(
-                    inputId = "color_by_state",
-                    label = "Color lines by state",
-                    value = FALSE, # Default is FALSE (Country)
-                    status = "warning",
-                    shape = "square",
-                    icon = icon("check"),
-                    outline = TRUE,
-                    animation = "pulse"
-                  )
-                )
+          column(
+            3,
+            box(
+              # title = "Variable description",
+              solidHeader = F,
+              collapsible = FALSE,
+              collapsed = FALSE,
+              width = NULL,
+              closable = TRUE,
+              uiOutput("var_description_graph")
+            ),
+            box(
+              # title = "States:",
+              # solidHeader = F,
+              width = NULL,
+              height = NULL,
+              linePlotLegendUI("lp")
+            ),
+            box(
+              width = NULL,
+              height = NULL,
+
+              # Axis Configuration
+              shinyWidgets::prettyCheckbox(
+                inputId = "force_y0",
+                label = "Y-axis starts at 0",
+                value = FALSE,
+                status = "warning",
+                shape = "square",
+                icon = icon("check"),
+                outline = TRUE,
+                animation = "pulse"
+              ),
+
+              # Coloring Toggle (Replaces the Radio Buttons)
+              shinyWidgets::prettyCheckbox(
+                inputId = "color_by_state",
+                label = "Color lines by state",
+                value = FALSE, # Default is FALSE (Country)
+                status = "warning",
+                shape = "square",
+                icon = icon("check"),
+                outline = TRUE,
+                animation = "pulse"
+              )
+            )
           ),
-          
         )
       ),
-      
-      
-      tabItem(tabName = "camera",
-
-              tagList(
-                fluidRow(
-                  column(9,
-                         camaraUI("cam"),
-                         div(
-                            style = "margin-top: 20px; padding: 0 5% 0 10%; overflow: hidden;",
-                           uiOutput("year_selector_camera_ui")
-                         )
-                  ),
-                  column(3,
-                         box(
-                           #title = "Election Description", 
-                           solidHeader = F,
-                           collapsible = FALSE, 
-                           collapsed = FALSE,
-                           width = NULL,
-                           uiOutput("text_camera")
-                         ),
-                         box(width = NULL,
-                             height = NULL,
-                             camaraLegendUI("cam")))
-
-                ),
-                
+      tabItem(
+        tabName = "camera",
+        tagList(
+          fluidRow(
+            column(
+              9,
+              camaraUI("cam"),
+              div(
+                style = "margin-top: 20px; padding: 0 5% 0 10%; overflow: hidden;",
+                uiOutput("year_selector_camera_ui")
               )
-
+            ),
+            column(
+              3,
+              box(
+                # title = "Election Description",
+                solidHeader = F,
+                collapsible = FALSE,
+                collapsed = FALSE,
+                width = NULL,
+                uiOutput("text_camera")
+              ),
+              box(
+                width = NULL,
+                height = NULL,
+                camaraLegendUI("cam")
+              )
+            )
+          ),
+        )
       ),
-      
-      
-
-      tabItem(tabName = "codebook", 
-              uiOutput("pdf_visor")),
-      
-      
+      tabItem(
+        tabName = "codebook",
+        uiOutput("pdf_visor")
+      ),
       tabItem(
         tabName = "data_tab",
         spp_mvp_ui("spp1")
       ),
-      
-      tabItem(tabName = "about", 
-              sppAboutModuleUI("about", title = "ABOUT"))
-      
-      
+      tabItem(
+        tabName = "about",
+        sppAboutModuleUI("about", title = "ABOUT")
+      )
     ),
     skin = "blue"
-    
-    
   )
 )

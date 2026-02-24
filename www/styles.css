@@ -2,19 +2,26 @@
    0) PROJECT PALETTE (CSS VARIABLES)
    ========================================================= */
 :root {
-  --gray:   #4D4D4D;   /* neutral dark for text */
-  --magenta:#E5007D;   /* accent / interactive */
-  --purple: #722464;   /* now secondary */
-  --orange: #FFA92A;   /* now primary */
+  --gray: #4D4D4D;
+  /* neutral dark for text */
+  --magenta: #E5007D;
+  /* accent / interactive */
+  --purple: #722464;
+  /* now secondary */
+  --orange: #FFA92A;
+  /* now primary */
 
-  --bg-light: #ffffff; /* main background */
-  --bg-muted: #f9f9f9; /* panels, sections */
+  --bg-light: #ffffff;
+  /* main background */
+  --bg-muted: #f9f9f9;
+  /* panels, sections */
 
   --text-dark: #111111;
   --text-light: #f0f0f0;
 
-  --shadow-200: 0 4px 8px rgba(0,0,0,0.15);
-  --focus-ring: 0 0 0 1px rgba(255, 169, 42, 0.45); /* orange glow */
+  --shadow-200: 0 4px 8px rgba(0, 0, 0, 0.15);
+  --focus-ring: 0 0 0 1px rgba(255, 169, 42, 0.45);
+  /* orange glow */
 }
 
 
@@ -22,20 +29,32 @@
 /* =========================================================
 GENERAL LABELS
 ========================================================= */
-label, .control-label, .shiny-input-container label, .form-group label {
-color: var(--gray) !important;
+label,
+.control-label,
+.shiny-input-container label,
+.form-group label {
+  color: var(--gray) !important;
 }
 
 
 /* =========================================================
    1) FUNDAMENTOS / LAYOUT GLOBAL
    ========================================================= */
-body, .content-wrapper, .right-side {
+body,
+.content-wrapper,
+.right-side {
   background-color: var(--bg-light) !important;
   color: var(--text-dark) !important;
 }
 
-h1, h2, h3, h4, h5, h6 { color: var(--gray) !important; }
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--gray) !important;
+}
 
 .main-footer {
   background-color: var(--bg-muted) !important;
@@ -43,8 +62,13 @@ h1, h2, h3, h4, h5, h6 { color: var(--gray) !important; }
   border-top: 1px solid var(--orange) !important;
 }
 
-a, .link { color: var(--orange); }
-a:hover, a:focus {
+a,
+.link {
+  color: var(--orange);
+}
+
+a:hover,
+a:focus {
   color: var(--purple);
   outline: none;
   box-shadow: var(--focus-ring);
@@ -62,11 +86,17 @@ a:hover, a:focus {
   color: #111 !important;
 }
 
-.skin-blue .main-header .navbar { background-color: var(--orange) !important; background-image: url('background.svg');}
-.skin-blue .main-header .navbar .nav > li > a { color: #111 !important; }
+.skin-blue .main-header .navbar {
+  background-color: var(--orange) !important;
+  background-image: url('background.svg');
+}
 
-.skin-blue .main-header .navbar .nav > li > a:hover,
-.skin-blue .main-header .navbar .nav > li > a:focus {
+.skin-blue .main-header .navbar .nav>li>a {
+  color: #111 !important;
+}
+
+.skin-blue .main-header .navbar .nav>li>a:hover,
+.skin-blue .main-header .navbar .nav>li>a:focus {
   background-color: var(--purple) !important;
   color: #fff !important;
 }
@@ -76,12 +106,17 @@ a:hover, a:focus {
   background-color: var(--bg-muted) !important;
   color: var(--gray) !important;
 }
-.skin-blue .main-sidebar .sidebar a { color: var(--gray) !important; }
+
+.skin-blue .main-sidebar .sidebar a {
+  color: var(--gray) !important;
+}
+
 .skin-blue .main-sidebar .sidebar a:hover {
   background-color: var(--magenta) !important;
   color: #111 !important;
 }
-.skin-blue .main-sidebar .sidebar-menu > li.active > a {
+
+.skin-blue .main-sidebar .sidebar-menu>li.active>a {
   background-color: var(--purple) !important;
   color: #fff !important;
 }
@@ -96,17 +131,21 @@ a:hover, a:focus {
   border: 1px solid var(--orange) !important;
 }
 
-.box.light-body-box > .box-body {
+.box.light-body-box>.box-body {
   background-color: var(--bg-light) !important;
   color: var(--text-dark) !important;
 }
 
-.box.box-danger { border-top-color: #ff3300 !important; }
+.box.box-danger {
+  border-top-color: #ff3300 !important;
+}
 
 /* =========================================================
    4) BOTONES & CONTROLES
    ========================================================= */
-.btn { border: none !important; }
+.btn {
+  border: none !important;
+}
 
 /* Default -> orange primary */
 .btn-default {
@@ -138,16 +177,19 @@ a:hover, a:focus {
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  opacity: 0.8; 
+  opacity: 0.8;
 }
 
-.slider-animate-button .btn-text { 
-  margin-left: 8px; 
-  font-size: 14px; 
-  user-select: none; 
+.slider-animate-button .btn-text {
+  margin-left: 8px;
+  font-size: 14px;
+  user-select: none;
 }
 
-.slider-animate-button:hover { background-color: var(--purple) !important; color: #fff !important; }
+.slider-animate-button:hover {
+  background-color: var(--purple) !important;
+  color: #fff !important;
+}
 
 
 
@@ -157,20 +199,25 @@ a:hover, a:focus {
 .modal-content {
   background-color: var(--bg-light) !important;
   color: var(--text-dark) !important;
-  border: none !important; /* Remove default gray border */
-  border-radius: 12px !important; /* Softer roundness */
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important; /* Deep modern shadow */
-  overflow: hidden; /* Clips the header corners */
+  border: none !important;
+  /* Remove default gray border */
+  border-radius: 12px !important;
+  /* Softer roundness */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+  /* Deep modern shadow */
+  overflow: hidden;
+  /* Clips the header corners */
 }
 
 .modal-header {
   background-color: var(--orange) !important;
   color: #111 !important;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   padding: 15px 20px;
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Keeps title left, close btn right */
+  justify-content: space-between;
+  /* Keeps title left, close btn right */
 }
 
 .modal-title {
@@ -188,6 +235,7 @@ a:hover, a:focus {
   margin-top: -2px;
   transition: opacity 0.2s;
 }
+
 .modal-header .close:hover {
   opacity: 1;
 }
@@ -201,7 +249,7 @@ a:hover, a:focus {
 
 .modal-footer {
   background-color: var(--bg-muted);
-  border-top: 1px solid rgba(0,0,0,0.05);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
   padding: 12px 20px;
 }
 
@@ -211,21 +259,21 @@ a:hover, a:focus {
   font-weight: 600;
   border-radius: 6px;
   padding: 8px 16px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
   transition: all 0.2s ease;
 }
 
 .modal-footer .btn:hover {
   background-color: var(--magenta) !important;
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Vertically center modals on screen */
 .modal-dialog {
   display: flex;
   align-items: center;
-  min-height: calc(100% - 60px); 
+  min-height: calc(100% - 60px);
 }
 
 
@@ -249,8 +297,8 @@ a:hover, a:focus {
 
 .skin-blue .main-header .logo #sidebar-toggle-relocated {
   float: none;
-  background: #ffffff !important;
-  color: #111 !important;
+  background: #ffffff;
+  color: #111;
   padding: 14px 15px;
   border-radius: 0px;
   line-height: 2;
@@ -258,7 +306,7 @@ a:hover, a:focus {
 }
 
 .skin-blue .main-header .logo #sidebar-toggle-relocated:hover,
-.skin-blue .main-header .logo #sidebar-toggle-relocated:active{
+.skin-blue .main-header .logo #sidebar-toggle-relocated:active {
   background-color: var(--magenta) !important;
   color: #fff !important;
 }
@@ -304,7 +352,8 @@ a:hover, a:focus {
 
 /* Warning-style header for development notice modal */
 #devNoticeModal .modal-header {
-  background-color: #d9534f !important; /* Bootstrap danger red */
+  background-color: #d9534f !important;
+  /* Bootstrap danger red */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -323,18 +372,16 @@ a:hover, a:focus {
   border-radius: 10px;
   overflow: hidden;
   border: none;
-  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
 }
 
 /* --- Caution stripe header --- */
 #devNoticeModal .modal-header {
-  background: repeating-linear-gradient(
-    45deg,
-    #000 0,
-    #000 20px,
-    #f7d400 20px,
-    #f7d400 40px
-  );
+  background: repeating-linear-gradient(45deg,
+      #000 0,
+      #000 20px,
+      #f7d400 20px,
+      #f7d400 40px);
   color: white;
   padding: 16px;
   display: flex;
@@ -350,7 +397,7 @@ a:hover, a:focus {
   gap: 10px;
   font-weight: 900;
   font-size: 1.8rem;
-  text-shadow: 0 0 4px rgba(0,0,0,0.6);
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
 }
 
 /* Invert your logo to match */
@@ -366,18 +413,16 @@ a:hover, a:focus {
   padding: 24px;
   text-align: center;
   font-size: 1.6rem;
-  border-top: 4px solid rgba(255,255,255,0.07);
+  border-top: 4px solid rgba(255, 255, 255, 0.07);
 }
 
 /* --- Caution stripe footer (to echo the top) --- */
 #devNoticeModal .modal-footer {
-  background: repeating-linear-gradient(
-    45deg,
-    #000 0,
-    #000 20px,
-    #f7d400 20px,
-    #f7d400 40px
-  );
+  background: repeating-linear-gradient(45deg,
+      #000 0,
+      #000 20px,
+      #f7d400 20px,
+      #f7d400 40px);
   border-top: none;
   padding: 12px;
   display: flex;
@@ -386,8 +431,10 @@ a:hover, a:focus {
 
 /* Footer button */
 #devNoticeModal .modal-footer .btn {
-  background: #f7d400 !important;   /* strong yellow */
-  color: #000 !important;           /* black text */
+  background: #f7d400 !important;
+  /* strong yellow */
+  color: #000 !important;
+  /* black text */
   border: 2px solid #000 !important;
   font-weight: 700;
   text-transform: uppercase;
@@ -420,17 +467,17 @@ a:hover, a:focus {
 
 .selectize-input:hover {
   border-color: var(--orange) !important;
-  box-shadow: 0 0 0 2px rgba(255,169,42,0.25);
+  box-shadow: 0 0 0 2px rgba(255, 169, 42, 0.25);
 }
 
 .selectize-input .focus {
   border-color: var(--purple) !important;
-  box-shadow: 0 0 0 2px rgba(114,36,100,0.25);
+  box-shadow: 0 0 0 2px rgba(114, 36, 100, 0.25);
 }
 
 .selectize-dropdown .option:hover,
 .selectize-dropdown .option.active {
-  background-color: rgba(255,169,42,0.15) !important;
+  background-color: rgba(255, 169, 42, 0.15) !important;
   color: var(--text-dark) !important;
 }
 
@@ -445,31 +492,40 @@ a:hover, a:focus {
    ========================================================= */
 
 
-@media (max-width: 1200px), (max-height: 800px) {
+@media (max-width: 1200px),
+(max-height: 800px) {
   body {
-    zoom: 0.90; /* 85% size for moderate screens */
+    zoom: 0.90;
+    /* 85% size for moderate screens */
   }
 }
 
-@media (max-width: 1117px), (max-height: 500px) {
+@media (max-width: 1117px),
+(max-height: 500px) {
   body {
-    zoom: 0.75; /* 75% for very small laptops */
+    zoom: 0.75;
+    /* 75% for very small laptops */
   }
 }
 
 
 
-@media (max-width: 1200px) , (max-height: 800px) {
-  #year_selector{
-    position: fixed !important;    /* fixed relative to viewport, not container */
-    bottom: 25px !important;       /* always stick to bottom */
-    left: 35% !important;          /* center horizontally */
-    right: 15% !important;          /* center horizontally */
+@media (max-width: 1200px),
+(max-height: 800px) {
+  #year_selector {
+    position: fixed !important;
+    /* fixed relative to viewport, not container */
+    bottom: 25px !important;
+    /* always stick to bottom */
+    left: 35% !important;
+    /* center horizontally */
+    right: 15% !important;
+    /* center horizontally */
     /*transform: translateX(-50%) scale(0.9);  /* slight shrink + center alignment */
     z-index: 2000 !important;
   }
 
-  
+
 }
 
 
@@ -477,17 +533,22 @@ a:hover, a:focus {
    15) SIDEBAR ADJUSTS HEIGHT WHEN SCREEN SHRINKS
    ========================================================= */
 
-@media (max-width: 1200px), (max-height: 800px) {
+@media (max-width: 1200px),
+(max-height: 800px) {
 
   /* Let the sidebar grow taller as the screen shrinks */
   .main-sidebar {
-    min-height: 100vh !important;     /* ensure full viewport height */
-    height: calc(100vh + 33vh) !important; /* slightly taller on small screens */
-    overflow-y: auto !important;      /* scroll if content exceeds viewport */
+    min-height: 100vh !important;
+    /* ensure full viewport height */
+    height: calc(100vh + 33vh) !important;
+    /* slightly taller on small screens */
+    overflow-y: auto !important;
+    /* scroll if content exceeds viewport */
   }
 
   /* Make sure content wrapper matches */
-  .content-wrapper, .right-side {
+  .content-wrapper,
+  .right-side {
     min-height: calc(100vh + 33vh) !important;
   }
 
@@ -503,61 +564,70 @@ a:hover, a:focus {
 @media screen and (orientation: portrait) {
 
   /* Let the year selector stretch wider across the bottom */
-  #year_selector{
+  #year_selector {
     /*position: fixed !important;    /* fixed relative to viewport, not container */
-    bottom: 25px !important;       /* always stick to bottom */
-    left: 5% !important;          /* center horizontally */
-    right: 15% !important;          /* center horizontally */
+    bottom: 25px !important;
+    /* always stick to bottom */
+    left: 5% !important;
+    /* center horizontally */
+    right: 15% !important;
+    /* center horizontally */
     /*transform: translateX(-50%) scale(0.9);  /* slight shrink + center alignment */
     z-index: 2000 !important;
   }
 
-  
+
 }
 
 
 /* =========================================================
    21F) CLEAN TWO-LINE, GROUPED LEGEND FOR PORTRAIT
    ========================================================= */
-@media screen and (orientation: portrait) and (max-width: 600px){
+@media screen and (orientation: portrait) and (max-width: 600px) {
 
   .info.legend.leaflet-control {
     position: fixed !important;
-    bottom: 150px !important;               /* stays above the year selector */
+    bottom: 150px !important;
+    /* stays above the year selector */
     left: 25% !important;
     transform: translateX(-50%) !important;
     width: 80vw !important;
     max-width: 200px !important;
     text-align: left !important;
-    background-color: rgba(255,255,255,0.95) !important;
+    background-color: rgba(255, 255, 255, 0.95) !important;
     padding: 8px 12px !important;
     border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
     font-size: 13px !important;
     line-height: 1.3 !important;
     z-index: 2100 !important;
 
     /* New scrolling behavior */
-    max-height: 20vh !important;            /* limit height to 40% of viewport */
+    max-height: 20vh !important;
+    /* limit height to 40% of viewport */
     overflow-y: auto !important;
     overflow-x: hidden !important;
-    -webkit-overflow-scrolling: touch;      /* smooth iOS scrolling */
+    -webkit-overflow-scrolling: touch;
+    /* smooth iOS scrolling */
 
     /* Optional: visual cue for scrollable area */
-    scrollbar-width: thin;                  /* for Firefox */
-    scrollbar-color: rgba(0,0,0,0.4) rgba(255,255,255,0.2);
+    scrollbar-width: thin;
+    /* for Firefox */
+    scrollbar-color: rgba(0, 0, 0, 0.4) rgba(255, 255, 255, 0.2);
   }
 
   /* Scrollbar style for WebKit browsers */
   .info.legend.leaflet-control::-webkit-scrollbar {
     width: 8px;
   }
+
   .info.legend.leaflet-control::-webkit-scrollbar-thumb {
-    background: rgba(0,0,0,0.35);
+    background: rgba(0, 0, 0, 0.35);
     border-radius: 4px;
   }
+
   .info.legend.leaflet-control::-webkit-scrollbar-thumb:hover {
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
   }
 
   .info.legend.leaflet-control i {
@@ -570,14 +640,16 @@ a:hover, a:focus {
     text-align: left !important;
     margin-bottom: 6px !important;
   }
-  
-  
-    #var-desc-map {
+
+
+  #var-desc-map {
     position: fixed !important;
     bottom: 160px !important;
-    left: calc(25% + 125px) !important; ;
-    width: 65vw !important;                 /* same width as legend */
-    
+    left: calc(25% + 125px) !important;
+    ;
+    width: 65vw !important;
+    /* same width as legend */
+
   }
 }
 
@@ -589,17 +661,21 @@ a:hover, a:focus {
 /*@media (max-width: 992px), (orientation: portrait) {*/
 @media (orientation: portrait) {
   .main-header .navbar .navbar-custom-menu .header-tab a {
-    padding: 10px; /* shrink padding a bit */
+    padding: 10px;
+    /* shrink padding a bit */
   }
 
   /* Hide the text labels but keep icons visible */
   .main-header .navbar .navbar-custom-menu .header-tab a {
-    font-size: 0; /* hides text but not icons */
+    font-size: 0;
+    /* hides text but not icons */
   }
 
   .main-header .navbar .navbar-custom-menu .header-tab a i {
-    font-size: 18px; /* restore icon size */
-    margin-right: 0; /* remove gap */
+    font-size: 18px;
+    /* restore icon size */
+    margin-right: 0;
+    /* remove gap */
   }
 
   /* Optional: hide text in contact link too */
@@ -610,7 +686,7 @@ a:hover, a:focus {
   #contact-email i {
     font-size: 18px;
   }
-  
+
 
 }
 
@@ -619,10 +695,11 @@ a:hover, a:focus {
   .main-header .navbar .navbar-custom-menu .header-tab a {
     font-size: 14px;
   }
+
   .main-header .navbar .navbar-custom-menu .header-tab a i {
     margin-right: 6px;
   }
-  
+
 }
 
 
@@ -648,7 +725,8 @@ a:hover, a:focus {
 }
 
 /* Make sure sidebar follows page height when content is taller */
-html, body {
+html,
+body {
   background-color: var(--bg-muted) !important;
   height: auto !important;
   min-height: 100% !important;
@@ -663,7 +741,8 @@ body:after {
   /*width: 390px; /* your sidebar width, adjust if responsive */
   height: 100%;
   background-color: var(--bg-muted);
-  z-index: -1; /* behind all other elements */
+  z-index: -1;
+  /* behind all other elements */
 }
 
 
@@ -675,7 +754,8 @@ body:after {
 
 /* When the sidebar is collapsed or hidden */
 body.sidebar-collapse #year_selector {
-  left: 20% !important;   /* move closer to left edge */
+  left: 20% !important;
+  /* move closer to left edge */
   /*right: 10%;              /* allow more space on the right */
   /*max-width: 90vw;         /* expand width dynamically */
 }
@@ -710,7 +790,7 @@ body.sidebar-collapse #year_selector {
 /* =========================================================
    21F) STYLING FOR THE SCREENSHOT BUTTON
    ========================================================= */
-   
+
 /* Hide the small default export icon */
 .leaflet-control-easyPrint-button-export {
   display: none !important;
@@ -735,7 +815,8 @@ body.sidebar-collapse #year_selector {
 .easyPrintHolder {
   display: block !important;
   position: relative !important;
-  margin-left: 0 !important;        /* no internal offset */
+  margin-left: 0 !important;
+  /* no internal offset */
 
 }
 
@@ -756,11 +837,11 @@ body.sidebar-collapse #year_selector {
 
 /* --- STYLE THE BUTTON --- */
 .easyPrintHolder .A4Landscape.page {
-  
+
   position: relative !important;
   top: 28px !important;
-  font-size: 14px; 
-  
+  font-size: 14px;
+
   font-weight: bold;
   background-color: var(--orange) !important;
   color: #111 !important;
@@ -769,7 +850,7 @@ body.sidebar-collapse #year_selector {
   /*padding: 0 30px !important;*/
   cursor: pointer !important;
   text-align: center !important;
-  
+
 
   /* fixes the weird vertical square */
   height: auto !important;
@@ -781,27 +862,30 @@ body.sidebar-collapse #year_selector {
   align-items: center !important;
   justify-content: center !important;
   transform: none !important;
-  width: 120px; 
-  opacity: 0.8; 
-  box-sizing: border-box; 
-  
+  width: 120px;
+  opacity: 0.8;
+  box-sizing: border-box;
+
 }
 
 /* Replace the icon with plain text */
 .easyPrintHolder .A4Landscape.page::before {
-  content: "\f030";  /* camera */
+  content: "\f030";
+  /* camera */
   font-family: "Font Awesome 6 Free", "Font Awesome 6 Solid", "Font Awesome";
   margin-right: 6px;
 }
 
 .easyPrintHolder .A4Landscape.page::after {
   content: "Screenshot";
-  font-family: sans-serif;      /* regular font */
+  font-family: sans-serif;
+  /* regular font */
 }
 
 /* Hover effect */
 .easyPrintHolder .A4Landscape.page:hover {
-background-color: var(--purple) !important; color: #fff !important;
+  background-color: var(--purple) !important;
+  color: #fff !important;
 
 }
 
@@ -810,7 +894,7 @@ background-color: var(--purple) !important; color: #fff !important;
   align-items: center;
   gap: 5px !important;
   justify-content: flex-start !important;
- 
+
 }
 
 
@@ -824,7 +908,11 @@ background-color: var(--purple) !important; color: #fff !important;
 
 
 
-@media (orientation: portrait) {.easyPrintHolder {display: none !important;}}
+@media (orientation: portrait) {
+  .easyPrintHolder {
+    display: none !important;
+  }
+}
 
 
 
@@ -833,13 +921,14 @@ background-color: var(--purple) !important; color: #fff !important;
 /* =========================================================
    21F) HEADER TABS
    ========================================================= */
-.main-header .navbar .nav > li.tec-logo > a {
+.main-header .navbar .nav>li.tec-logo>a {
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
 
-.main-header .navbar .nav > li.tec-logo img {
-  margin-top: 5px; /* tweak or remove if not needed */
+.main-header .navbar .nav>li.tec-logo img {
+  margin-top: 5px;
+  /* tweak or remove if not needed */
   margin-bottom: 5px;
 }
 
@@ -854,10 +943,11 @@ background-color: var(--purple) !important; color: #fff !important;
 }
 
 /* 2️⃣ Turn the inner <ul> into a flexbox container */
-.main-header .navbar .navbar-custom-menu > .nav.navbar-nav {
+.main-header .navbar .navbar-custom-menu>.nav.navbar-nav {
   display: flex !important;
   align-items: center;
-  justify-content: space-between; /* left group | right group */
+  justify-content: space-between;
+  /* left group | right group */
   width: 100%;
   margin: 0;
   padding: 0;
@@ -893,7 +983,8 @@ background-color: var(--purple) !important; color: #fff !important;
 
 /* ------------- Portrait or small screens ------------- */
 /*@media (orientation: portrait), (max-width: 992px) {*/
-@media (orientation: portrait) and (max-width: 600px) {  
+@media (orientation: portrait) and (max-width: 600px) {
+
   /* Hide the right-corner TEC logo */
   .main-header .navbar .navbar-custom-menu .tec-logo {
     display: none !important;
@@ -915,16 +1006,17 @@ background-color: var(--purple) !important; color: #fff !important;
   .app-header-logo {
     display: flex !important;
     align-items: center;
-    justify-content: space-between; /* Push logos apart */
+    justify-content: space-between;
+    /* Push logos apart */
     width: 100%;
     padding: 0 !important;
     margin: 0 !important;
   }
-  
+
   .skin-blue .main-header .logo img {
-  padding: 0px 0px;
+    padding: 0px 0px;
   }
-  
+
 
 }
 
@@ -1046,7 +1138,7 @@ background-color: var(--purple) !important; color: #fff !important;
 #fancytree_vars_demo span.fancytree-node:hover,
 #fancytree_vars_demo_graph span.fancytree-node:hover,
 #fancytree_states_demo span.fancytree-node:hover {
-  background-color: rgba(255,169,42,0.25) !important;
+  background-color: rgba(255, 169, 42, 0.25) !important;
   border-radius: 3px;
 }
 
@@ -1084,7 +1176,7 @@ background-color: var(--purple) !important; color: #fff !important;
 
 /* Selected row uses same color as hover */
 #fancytree_states_demo span.fancytree-node.fancytree-selected {
-  background-color: rgba(255,169,42,0.25) !important;
+  background-color: rgba(255, 169, 42, 0.25) !important;
   border-radius: 3px;
 }
 
@@ -1096,7 +1188,8 @@ background-color: var(--purple) !important; color: #fff !important;
 
 /* When hovered AND selected → same highlight, not purple */
 #fancytree_states_demo span.fancytree-node.fancytree-selected:hover {
-  background-color: rgba(255,169,42,0.35) !important; /* slightly stronger */
+  background-color: rgba(255, 169, 42, 0.35) !important;
+  /* slightly stronger */
 }
 
 
@@ -1127,17 +1220,23 @@ background-color: var(--purple) !important; color: #fff !important;
     width: auto !important;
     flex: 1 1 auto !important;
   }
-  .easyPrintHolder {display: none !important;}
-  
+
+  .easyPrintHolder {
+    display: none !important;
+  }
+
   .outer {
-          top: -40px !important;
-        }
-  
-    #year_selector{
+    top: -40px !important;
+  }
+
+  #year_selector {
     /*position: fixed !important;    /* fixed relative to viewport, not container */
-    bottom: 25px !important;       /* always stick to bottom */
-    left: 5% !important;          /* center horizontally */
-    right: 15% !important;          /* center horizontally */
+    bottom: 25px !important;
+    /* always stick to bottom */
+    left: 5% !important;
+    /* center horizontally */
+    right: 15% !important;
+    /* center horizontally */
     /*transform: translateX(-50%) scale(0.9);  /* slight shrink + center alignment */
     z-index: 2000 !important;
   }
@@ -1168,49 +1267,54 @@ background-color: var(--purple) !important; color: #fff !important;
     width: auto !important;
     flex: 1 1 auto !important;
   }
-  .easyPrintHolder {display: none !important;}
-  
 
-  
-
-/* HEADER: logo + navbar should sit side-by-side cleanly */
-  .main-header {
-      display: flex !important;
-      flex-direction: row !important;
-      align-items: center !important;
-      justify-content: space-between !important;
-      width: 100% !important;
+  .easyPrintHolder {
+    display: none !important;
   }
-  
+
+
+
+
+  /* HEADER: logo + navbar should sit side-by-side cleanly */
+  .main-header {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+  }
+
   /* LOGO stays left, fixed size */
   .main-header .logo {
-      flex: 0 0 auto !important;  /* do NOT grow */
-      display: flex !important;
-      align-items: center !important;
+    flex: 0 0 auto !important;
+    /* do NOT grow */
+    display: flex !important;
+    align-items: center !important;
   }
-  
+
   /* NAVBAR takes the remaining available space */
   .main-header .navbar {
-      flex: 1 1 auto !important;   /* grow to fill remaining width */
-      display: flex !important;
-      align-items: center !important;
-      justify-content: flex-end !important;
-  
-      /* IMPORTANT: remove offsets WITHOUT pushing under logo */
-      margin-left: 0 !important;
-      padding-left: 0 !important;
-      width: auto !important;
+    flex: 1 1 auto !important;
+    /* grow to fill remaining width */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+
+    /* IMPORTANT: remove offsets WITHOUT pushing under logo */
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    width: auto !important;
   }
-  
+
   /* UL inside navbar distributes icons on the right */
   .navbar-custom-menu .nav.navbar-nav {
-      display: flex !important;
-      flex-direction: row !important;
-      justify-content: flex-end !important;
-      align-items: center !important;
-  
-      margin: 0 !important;
-      padding: 0 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
 
@@ -1225,33 +1329,39 @@ background-color: var(--purple) !important; color: #fff !important;
 
 /* Color theme for the range slider */
 
-.irs-bar, 
+.irs-bar,
 .irs-bar--single {
-    /* Horizontal gradient using your variable */
-    background: linear-gradient(
-        to right, 
-        #d1a3ff 0%,     /* Very light purple at the start */
-        rgb(89, 49, 132) 33%,    /* Stays relatively light until the 1/3 mark */
-        var(--purple) 100% /* Blends into your main purple for the rest */
+  /* Horizontal gradient using your variable */
+  background: linear-gradient(to right,
+      #d1a3ff 0%,
+      /* Very light purple at the start */
+      rgb(89, 49, 132) 33%,
+      /* Stays relatively light until the 1/3 mark */
+      var(--purple) 100%
+      /* Blends into your main purple for the rest */
     ) !important;
-    
-    /* Ensure the borders match the theme */
-    border-top: 1px solid var(--purple) !important;
-    border-bottom: 1px solid var(--purple) !important;
-    height: 8px; /* Slightly taller bar makes gradients more visible */
+
+  /* Ensure the borders match the theme */
+  border-top: 1px solid var(--purple) !important;
+  border-bottom: 1px solid var(--purple) !important;
+  height: 8px;
+  /* Slightly taller bar makes gradients more visible */
 }
 
 /* Update the slider handle to match */
 .irs-handle {
-    border: 2px solid var(--purple) !important;
-    background-color: white !important;
-    box-shadow: 0 0 5px rgba(128, 0, 128, 0.2); /* Subtle purple glow */
+  border: 2px solid var(--purple) !important;
+  background-color: white !important;
+  box-shadow: 0 0 5px rgba(128, 0, 128, 0.2);
+  /* Subtle purple glow */
 }
 
 /* Change the color of the "from" and "to" labels */
-.irs-min, .irs-max, .irs-single {
-    color: #fff !important;
-    background-color: var(--purple) !important;
+.irs-min,
+.irs-max,
+.irs-single {
+  color: #fff !important;
+  background-color: var(--purple) !important;
 }
 
 /* flipped-dot class and add general dot styling */
@@ -1259,9 +1369,9 @@ background-color: var(--purple) !important; color: #fff !important;
   transform-box: fill-box;
   transform-origin: center;
   /* Add a subtle drop shadow for depth */
-  filter: drop-shadow(0px 1px 1px rgba(0,0,0,0.3));
+  filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.3));
   /* Smooth transition for hover effects */
-  transition: fill 0s linear 0.3s !important; 
+  transition: fill 0s linear 0.3s !important;
 }
 
 .flipped-dot {
@@ -1269,15 +1379,18 @@ background-color: var(--purple) !important; color: #fff !important;
 }
 
 @keyframes coin-flip {
-  0% { 
-    transform: scaleX(1); 
+  0% {
+    transform: scaleX(1);
   }
-  50% { 
-    transform: scaleX(0); 
-    filter: brightness(1.3); /* Glint effect */
+
+  50% {
+    transform: scaleX(0);
+    filter: brightness(1.3);
+    /* Glint effect */
   }
-  100% { 
-    transform: scaleX(1); 
+
+  100% {
+    transform: scaleX(1);
   }
 }
 
@@ -1291,7 +1404,8 @@ background-color: var(--purple) !important; color: #fff !important;
   font-weight: 500 !important;
   color: #4D4D4D !important;
   font-size: 14px !important;
-  margin-left: 8px; /* Balanced spacing from the box */
+  margin-left: 8px;
+  /* Balanced spacing from the box */
 }
 
 /* Ensure the checkmark icon and box align with the container edge */
@@ -1301,7 +1415,8 @@ background-color: var(--purple) !important; color: #fff !important;
 
 /* Optional: Slight hover effect for better interactivity */
 .pretty:hover label {
-  color: #FFA92A !important; /* Orange hover to match branding */
+  color: #FFA92A !important;
+  /* Orange hover to match branding */
   transition: color 0.2s ease;
 }
 
@@ -1311,52 +1426,67 @@ background-color: var(--purple) !important; color: #fff !important;
 
 #global-loader {
   position: fixed;
-  
+
   /* Center the container mathematically */
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  
+
   /* Make dimensions MASSIVE to counteract the body zoom 
      (e.g., if zoom is 0.5, 200vw becomes 100% of screen) */
-  width: 200vw; 
-  height: 200vh; 
-  
+  width: 200vw;
+  height: 200vh;
+
   background-color: rgba(255, 255, 255, 0.9) !important;
   z-index: 999999 !important;
-  
+
   /* Flexbox still centers the content within this huge box */
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  
+
   /* Optional: Prevents the loader dots themselves from looking too small on zoom */
-  zoom: 1 !important; 
+  zoom: 1 !important;
 }
 
 
 #global-loader h2 {
-  margin-top: 30px;                /* Give the bouncing balls space */
+  margin-top: 30px;
+  /* Give the bouncing balls space */
   margin-bottom: 0;
-  
+
   /* Typography */
-  font-family: 'Source Sans Pro', sans-serif; /* Matches AdminLTE default */
-  font-weight: 400;                /* Lighter weight looks more modern */
-  font-size: 14px;                 /* Smaller, cleaner text */
-  letter-spacing: 3px;             /* Wide spacing feels elegant */
+  font-family: 'Source Sans Pro', sans-serif;
+  /* Matches AdminLTE default */
+  font-weight: 400;
+  /* Lighter weight looks more modern */
+  font-size: 14px;
+  /* Smaller, cleaner text */
+  letter-spacing: 3px;
+  /* Wide spacing feels elegant */
   text-transform: uppercase;
-  
+
   /* Color & Animation */
-  color: var(--gray);            /* Use your secondary brand color */
+  color: var(--gray);
+  /* Use your secondary brand color */
   opacity: 0.8;
   animation: text-pulse 2s infinite ease-in-out;
 }
 
 /* Subtle breathing effect for the text */
 @keyframes text-pulse {
-  0%, 100% { opacity: 0.5; transform: scale(0.98); }
-  50%      { opacity: 1;   transform: scale(1); }
+
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(0.98);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 
@@ -1379,9 +1509,22 @@ background-color: var(--purple) !important; color: #fff !important;
 }
 
 /* Theme Colors for Circles */
-.loader-bouncing-spp .circle:nth-child(1) { background-color: var(--orange); }
-.loader-bouncing-spp .circle:nth-child(2) { background-color: var(--orange); left: 45%; animation-delay: .2s; }
-.loader-bouncing-spp .circle:nth-child(3) { background-color: var(--orange); left: auto; right: 15%; animation-delay: .3s; }
+.loader-bouncing-spp .circle:nth-child(1) {
+  background-color: var(--orange);
+}
+
+.loader-bouncing-spp .circle:nth-child(2) {
+  background-color: var(--orange);
+  left: 45%;
+  animation-delay: .2s;
+}
+
+.loader-bouncing-spp .circle:nth-child(3) {
+  background-color: var(--orange);
+  left: auto;
+  right: 15%;
+  animation-delay: .3s;
+}
 
 @keyframes circle-bounce {
   0% {
@@ -1390,19 +1533,24 @@ background-color: var(--purple) !important; color: #fff !important;
     border-radius: 50px 50px 25px 25px;
     transform: scaleX(1.7);
   }
+
   40% {
     height: 20px;
     border-radius: 50%;
     transform: scaleX(1);
   }
-  100% { top: 0%; }
+
+  100% {
+    top: 0%;
+  }
 }
 
 .loader-bouncing-spp .shadow {
   width: 20px;
   height: 4px;
   border-radius: 50%;
-  background-color: rgba(0,0,0,0.2); /* Muted shadow */
+  background-color: rgba(0, 0, 0, 0.2);
+  /* Muted shadow */
   position: absolute;
   top: 62px;
   transform-origin: 50%;
@@ -1412,13 +1560,31 @@ background-color: var(--purple) !important; color: #fff !important;
   animation: shadow-pulse .5s alternate infinite ease;
 }
 
-.loader-bouncing-spp .shadow:nth-child(4) { left: 45%; animation-delay: .2s; }
-.loader-bouncing-spp .shadow:nth-child(5) { left: auto; right: 15%; animation-delay: .3s; }
+.loader-bouncing-spp .shadow:nth-child(4) {
+  left: 45%;
+  animation-delay: .2s;
+}
+
+.loader-bouncing-spp .shadow:nth-child(5) {
+  left: auto;
+  right: 15%;
+  animation-delay: .3s;
+}
 
 @keyframes shadow-pulse {
-  0% { transform: scaleX(1.5); }
-  40% { transform: scaleX(1); opacity: .7; }
-  100% { transform: scaleX(.2); opacity: .4; }
+  0% {
+    transform: scaleX(1.5);
+  }
+
+  40% {
+    transform: scaleX(1);
+    opacity: .7;
+  }
+
+  100% {
+    transform: scaleX(.2);
+    opacity: .4;
+  }
 }
 
 #global-loader h2 {
@@ -1459,7 +1625,7 @@ background-color: var(--purple) !important; color: #fff !important;
 
 /* --- 4. ROWS & DETAILS --- */
 .popup-row {
-  margin-bottom: 6px !important; 
+  margin-bottom: 6px !important;
   display: block;
 }
 
@@ -1475,7 +1641,8 @@ background-color: var(--purple) !important; color: #fff !important;
   font-size: 12px;
   cursor: pointer;
   outline: none;
-  list-style: none; /* Hides default triangle */
+  list-style: none;
+  /* Hides default triangle */
 }
 
 /* Optional: Custom arrow for details */
@@ -1486,6 +1653,7 @@ background-color: var(--purple) !important; color: #fff !important;
   transform: rotate(90deg);
   transition: transform 0.2s;
 }
+
 .popup-details[open] summary::after {
   transform: rotate(270deg);
 }
@@ -1509,19 +1677,174 @@ background-color: var(--purple) !important; color: #fff !important;
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  background-color: var(--orange) !important; /* Orange */
+  background-color: var(--orange) !important;
+  /* Orange */
   color: #2c2c2c !important;
   padding: 5px 12px;
   border-radius: 4px;
   font-weight: 700;
   font-size: 11px !important;
   text-decoration: none !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
 }
 
 .btn-camera-link:hover {
-  background-color: var(--purple) !important; /* Purple */
+  background-color: var(--purple) !important;
+  /* Purple */
   color: #fff !important;
   transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   24) MOBILE SIDEBAR UX HINTS
+   ========================================================= */
+
+/* --- A) Hamburger Pulse (sidebar closed, portrait only) --- */
+@keyframes hamburger-pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: none;
+    background-color: #ffffff;
+    color: #111;
+  }
+
+  15% {
+    transform: scale(1.2);
+    box-shadow: 0 0 16px 4px rgba(114, 36, 100, 0.5);
+    background-color: var(--purple);
+    color: #fff;
+  }
+
+  30% {
+    transform: scale(1);
+    box-shadow: none;
+    background-color: #ffffff;
+    color: #111;
+  }
+
+  45% {
+    transform: scale(1.15);
+    box-shadow: 0 0 12px 3px rgba(114, 36, 100, 0.4);
+    background-color: var(--purple);
+    color: #fff;
+  }
+
+  60%,
+  100% {
+    transform: scale(1);
+    box-shadow: none;
+    background-color: #ffffff;
+    color: #111;
+  }
+}
+
+/* On mobile (portrait), AdminLTE has NO sidebar-collapse class.
+   The sidebar is hidden by default; opening it adds 'sidebar-open'. */
+@media (orientation: portrait) {
+
+  body:not(.sidebar-open) .sidebar-toggle,
+  body:not(.sidebar-open) #sidebar-toggle-relocated {
+    animation: hamburger-pulse 4s ease-in-out infinite;
+  }
+
+  body.sidebar-open .sidebar-toggle,
+  body.sidebar-open #sidebar-toggle-relocated {
+    animation: none !important;
+  }
+}
+
+
+/* --- B) Chevron Trail Swipe Hint (JS-created in document.body) --- */
+
+/* Individual chevron fade-slide */
+@keyframes chevron-flow {
+  0% {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+
+  20% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  60% {
+    opacity: 1;
+    transform: translateX(-6px);
+  }
+
+  80% {
+    opacity: 0.3;
+    transform: translateX(-12px);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+}
+
+/* Container fade in/out */
+@keyframes hint-fade {
+  0% {
+    opacity: 0;
+  }
+
+  8% {
+    opacity: 1;
+  }
+
+  85% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+.swipe-hint-js {
+  position: fixed;
+  bottom: 44px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999999;
+
+  display: flex;
+  align-items: center;
+  gap: 2px;
+
+  background: rgba(40, 40, 40, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 8px 16px;
+  border-radius: 20px;
+  pointer-events: none;
+
+  animation: hint-fade 8s ease-in-out forwards;
+}
+
+.swipe-hint-js .chevron {
+  font-size: 26px;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--orange);
+  opacity: 0;
+  animation: chevron-flow 1.2s ease-in-out infinite;
+}
+
+.swipe-hint-js .c1 {
+  animation-delay: 0.6s;
+}
+
+.swipe-hint-js .c2 {
+  animation-delay: 0.4s;
+}
+
+.swipe-hint-js .c3 {
+  animation-delay: 0.2s;
 }
