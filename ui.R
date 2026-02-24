@@ -69,20 +69,7 @@ ui <- dashboardPage(
     width = 250,
     useShinyjs(),
 
-      hidden(
-          div(id = "global-loader",
-              div(class = "loader-bouncing-spp",
-                  # The 3 Bouncing Circles
-                  div(class = "circle"),
-                  div(class = "circle"),
-                  div(class = "circle"),
-                  # The Shadows
-                  div(class = "shadow"),
-                  div(class = "shadow")
-              ),
-              h2("Syncing Data...")
-          )
-        ),
+
 
 
     tagList(
@@ -137,6 +124,21 @@ ui <- dashboardPage(
       )
   ),
   dashboardBody(
+    # Global loader overlay — placed in body (not sidebar) so it works on mobile
+    hidden(
+      div(id = "global-loader",
+          div(class = "loader-bouncing-spp",
+              # The 3 Bouncing Circles
+              div(class = "circle"),
+              div(class = "circle"),
+              div(class = "circle"),
+              # The Shadows
+              div(class = "shadow"),
+              div(class = "shadow")
+          ),
+          h2("Syncing Data...")
+      )
+    ),
     
     tags$head(includeHTML("ga.html"),
               tags$script(src="tab_analytics.js"),
