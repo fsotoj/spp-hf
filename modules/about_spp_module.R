@@ -14,8 +14,8 @@ sppAboutModuleUI <- function(id,
     list(name = "Francisco Urdinez", role = "Collaborator", linkedin = "https://www.linkedin.com/in/francisco-urdinez-a8061813/", site = "https://www.furdinez.com/", org = "Universidad Católica de Chile", img = "docs/francisco.webp", color = "#722464"),
     list(name = "Guadalupe González", role = "Collaborator", linkedin = "https://www.linkedin.com/in/guadag12/", site = "https://guadagonzalez.com/", org = "University of Maryland", img = "docs/guadalupe.webp", color = "#722464"),
     list(name = "Felipe Soto Jorquera", role = "Collaborator", linkedin = "https://www.linkedin.com/in/felipesotojorquera/", site = NULL, org = "Hertie School, Berlin", img = "docs/felipe.webp", color = "#722464"),
-    list(name = "Magdalena Nieto", role = "Collaborator", linkedin = "https://www.linkedin.com/in/magdalenanieto/", site = NULL, org = "Universidad de Buenos Aires", img = "docs/magdalena.webp", color = "#722464"),
-    list(name = "Sergio Huertas Hernández", role = "Research Assistant", linkedin = "https://www.linkedin.com/in/sergio-huertas-hern%C3%A1ndez/", site = "https://serhuertas.github.io/", org = "Universidad Católica de Chile", img = "docs/sergio.webp", color = "#444447")
+    list(name = "Sergio Huertas Hernández", role = "Research Assistant", linkedin = "https://www.linkedin.com/in/sergio-huertas-hern%C3%A1ndez/", site = "https://serhuertas.github.io/", org = "Universidad Católica de Chile", img = "docs/sergio.webp", color = "#444447"),
+    list(name = "Magdalena Nieto", role = "Research Assistant", linkedin = "https://www.linkedin.com/in/magdalenanieto/", site = NULL, org = "Universidad de Buenos Aires", img = "docs/magdalena.webp", color = "#444447")
   )
 
   style_css <- paste0(
@@ -41,7 +41,7 @@ sppAboutModuleUI <- function(id,
     "#", root_id, " .spp-link:hover { text-decoration:underline; }\n",
     
     "/* SPP People Grid */\n",
-    "#", root_id, " .spp-people-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; justify-items: center; padding: 10px 0; width: 100%; }\n",
+    "#", root_id, " .spp-people-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; justify-items: center; padding: 10px 0; width: 100%; }\n",
     "#", root_id, " .spp-property-card { height: 19em; width: 100%; max-width: 14em; display: flex; flex-direction: column; position: relative; transition: all 0.4s cubic-bezier(0.645, 0.045, 0.355, 1); border-radius: 16px; overflow: hidden; background: #fff; box-shadow: 15px 15px 27px #e1e1e3, -15px -15px 27px #ffffff; }\n",
     "#", root_id, " .spp-property-image { height: 10em; width: 100%; position: absolute; top: 0; transition: all 0.4s cubic-bezier(0.645, 0.045, 0.355, 1); background-size: cover; background-position: center top; background-repeat: no-repeat; z-index: 2; }\n",    "#", root_id, " .spp-image-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 60%); opacity: 0; transition: opacity 0.4s ease; }\n",
     "#", root_id, " .spp-image-footer { position: absolute; bottom: 0.8em; left: 0.8em; right: 0.8em; display: flex; flex-direction: column; gap: 8px; z-index: 3; }\n",
