@@ -19,6 +19,16 @@
   --text-dark: #111111;
   --text-light: #f0f0f0;
 
+  /* Colores para el modal (Adaptados al tema claro actual) */
+  --modal-bg: rgba(255, 255, 255, 0.85);
+  /* Fondo claro semi-transparente */
+  --modal-border: rgba(255, 169, 42, 0.3);
+  /* Borde sutil basado en primario */
+  --modal-shadow: rgba(0, 0, 0, 0.15);
+  /* Sombra suave */
+  --modal-text-secondary: #666666;
+  /* Texto secundario gris oscuro */
+
   --shadow-200: 0 4px 8px rgba(0, 0, 0, 0.15);
   --focus-ring: 0 0 0 1px rgba(255, 169, 42, 0.45);
   /* orange glow */
@@ -194,45 +204,62 @@ a:focus {
 
 
 /* =========================================================
-   5) MODALES (Standard Bootstrap Modals)
+   5) MODALES (Standard Bootstrap Modals - Glassmorphism Redesign)
    ========================================================= */
-.modal-content {
-  background-color: var(--bg-light) !important;
-  color: var(--text-dark) !important;
-  border: none !important;
-  /* Remove default gray border */
-  border-radius: 12px !important;
-  /* Softer roundness */
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
-  /* Deep modern shadow */
-  overflow: hidden;
-  /* Clips the header corners */
+
+/* Backdrop (Container behind the modal) */
+.modal-backdrop.in {
+  opacity: 1 !important;
+  background-color: rgba(0, 0, 0, 0.25) !important;
 }
 
+/* Base Modal Container for blur */
+.modal {
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+/* Modal Content (The actual box) */
+.modal-content {
+  background-color: var(--modal-bg) !important;
+  color: var(--text-dark) !important;
+  border: 1px solid var(--modal-border) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 30px var(--modal-shadow) !important;
+  overflow: hidden;
+  text-align: center;
+  /* Center content */
+}
+
+/* Header */
 .modal-header {
-  background-color: var(--orange) !important;
-  color: #111 !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  padding: 15px 20px;
-  display: flex;
+  border-bottom: none !important;
+  padding: 24px 24px 8px 24px !important;
+  display: flex !important;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  /* Keeps title left, close btn right */
+  justify-content: center;
+  position: relative;
 }
 
 .modal-title {
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  font-size: 1.25em;
+  font-size: 24px !important;
+  font-weight: 600 !important;
+  margin-bottom: 0 !important;
+  color: var(--text-dark) !important;
+  width: 100%;
 }
 
 /* Style the 'X' close button in modals */
 .modal-header .close {
-  color: #111 !important;
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  color: var(--text-dark) !important;
   text-shadow: none !important;
-  opacity: 0.6;
-  font-size: 24px;
-  margin-top: -2px;
+  opacity: 0.5;
+  font-size: 28px;
+  margin-top: 0;
   transition: opacity 0.2s;
 }
 
@@ -240,40 +267,129 @@ a:focus {
   opacity: 1;
 }
 
+/* Body */
 .modal-body {
-  padding: 20px 25px;
-  font-size: 1.1em;
+  padding: 16px 32px 24px 32px !important;
+  font-size: 16px !important;
   line-height: 1.5;
-  color: var(--gray);
+  color: var(--modal-text-secondary) !important;
+  text-align: justify !important;
 }
 
+/* Description explicitly added */
+.modal-description {
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 24px;
+  color: var(--modal-text-secondary);
+}
+
+/* Footer (Actions) */
 .modal-footer {
-  background-color: var(--bg-muted);
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-  padding: 12px 20px;
+  border-top: none !important;
+  background-color: transparent !important;
+  padding: 0 32px 32px 32px !important;
+  display: flex !important;
+  justify-content: space-between;
+  gap: 16px;
 }
 
+.modal-footer::before,
+.modal-footer::after {
+  display: none !important;
+  /* Fix bootstrap clearfix breaking flexbox */
+}
+
+/* Buttons in footer acting as .modal-actions */
 .modal-footer .btn {
-  background-color: var(--purple) !important;
-  color: #fff !important;
-  font-weight: 600;
-  border-radius: 6px;
-  padding: 8px 16px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-  transition: all 0.2s ease;
+  padding: 12px 24px !important;
+  border-radius: 8px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease !important;
+  flex: 1;
+  margin: 0 !important;
 }
 
-.modal-footer .btn:hover {
-  background-color: var(--magenta) !important;
+.modal-footer .btn-default {
+  background-color: transparent !important;
+  border: 1px solid var(--text-dark) !important;
+  color: var(--text-dark) !important;
+  box-shadow: none !important;
+}
+
+.modal-footer .btn-default:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.modal-footer .btn-primary,
+.modal-footer .btn-success {
+  background-color: var(--purple) !important;
+  /* Secondary color from theme as primary action in modal */
+  color: #fff !important;
+  border: none !important;
+  box-shadow: 0 4px 10px rgba(114, 36, 100, 0.2) !important;
+}
+
+.modal-footer .btn-primary:hover,
+.modal-footer .btn-success:hover {
+  background-color: #5c1b50 !important;
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Vertically center modals on screen */
 .modal-dialog {
-  display: flex;
+  display: flex !important;
   align-items: center;
+  justify-content: center;
   min-height: calc(100% - 60px);
+}
+
+/* Custom extra classes provided by user */
+.modal-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid var(--modal-border);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 16px auto;
+  color: var(--magenta);
+  font-size: 32px;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.modal-details {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.modal-details li {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  /* Subtle border for light theme */
+}
+
+.modal-details li:last-child {
+  border-bottom: none;
+}
+
+.modal-details li .label {
+  color: var(--modal-text-secondary);
+  font-weight: normal;
+  font-size: 14px;
+}
+
+.modal-details li .value {
+  color: var(--text-dark);
+  font-weight: 600;
+  font-size: 14px;
 }
 
 
@@ -317,38 +433,18 @@ a:focus {
 }
 
 /* =========================================================
-   8) MODAL syles
+   8) HOW-TO MODAL SPECIFICS
    ========================================================= */
-#aboutSPPModal .modal-header,
-#howToModal .modal-header {
-  background-color: var(--orange) !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0px 16px;
-  min-height: 56px;
-  overflow: hidden;
+#howToModal .modal-body h4 {
+  font-size: 24px !important;
+  font-weight: 600 !important;
+  margin-top: 0 !important;
+  margin-bottom: 20px !important;
+  color: var(--text-dark) !important;
+  text-align: center !important;
 }
 
-#aboutSPPModal .modal-header .modal-title,
-#howToModal .modal-header .modal-title {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-  padding: 0;
-  line-height: 0;
-}
 
-#aboutSPPModal .modal-header .modal-title img,
-#howToModal .modal-header .modal-title img {
-  display: block;
-  max-height: 80px;
-  height: auto;
-  width: auto;
-  filter: brightness(0) invert(1);
-}
 
 /* Warning-style header for development notice modal */
 #devNoticeModal .modal-header {
