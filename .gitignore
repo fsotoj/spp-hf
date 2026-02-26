@@ -22,3 +22,6 @@ renv/library/
 .RData
 .Rproj.user
 .Ruserdata
+
+# Ignore analysis folder
+analysis/
